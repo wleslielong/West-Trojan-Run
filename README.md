@@ -8,26 +8,48 @@ and Android.
 
 Double-click `index.html`. That's it — no build, no install, no server.
 
-## Put it online
+## Where it lives
 
-1. Go to <https://netlify.com/drop>
-2. Drag **this whole folder** onto the page (not just `index.html`)
-3. You get a permanent `https://…netlify.app` URL
+**<https://wleslielong.github.io/West-Trojan-Run/>**
 
-Dragging the folder matters. The icons, `manifest.webmanifest`, and `sw.js` have
-to sit next to `index.html` for the game to install as an app. Drop only the one
-file and it still plays fine, it just won't install on Android or work offline.
+Hosted by GitHub Pages out of the `main` branch of
+[wleslielong/West-Trojan-Run](https://github.com/wleslielong/West-Trojan-Run),
+root folder. The repo is public, which is what lets Pages serve it for free.
 
-To publish an update later, drag the folder onto the *same* Netlify site again.
+## Publishing an update
+
+1. Edit the files in your local clone
+2. Bump the version — see **Releasing** below, it is four places, not one
+3. GitHub Desktop → write a summary → **Commit to main** → **Push origin**
+
+Pages redeploys on its own within a minute or two. There is nothing to drag and
+nothing to configure again.
+
+## Releasing
+
+Every file has to sit next to `index.html` on the server, so never publish just
+the one file. And bump all four of these together or the update won't be visible:
+
+| Where | Looks like |
+|---|---|
+| `index.html` version tag | `<div id="vtag">v1.7</div>` |
+| `index.html` start screen | `BUILD 1.7 &middot;` |
+| `index.html` script | `var VERSION='1.7';` |
+| `sw.js` | `var CACHE = 'wtr-1.7';` |
+
+If the build number on screen doesn't change after a deploy, the `sw.js` `CACHE`
+line is what got missed. GitHub Pages also holds a CDN cache for about 10
+minutes, so give it a moment before assuming something broke.
 
 ## Install it as an app
 
-**iPhone / iPad** — open the URL in **Safari** (not Chrome; Chrome on iOS cannot
-do this), tap **Share**, then **Add to Home Screen**. It launches fullscreen with
-no browser bars.
+**iPhone / iPad** — open <https://wleslielong.github.io/West-Trojan-Run/> in
+**Safari** (not Chrome; Chrome on iOS cannot do this), tap **Share**, then **Add
+to Home Screen**. It launches fullscreen with no browser bars. *Confirmed working
+on iPad.*
 
-**Android** — open the URL in Chrome. Tap **ADD TO HOME SCREEN** on the start
-screen, or use Chrome's ⋮ menu → *Install app*.
+**Android** — open the same URL in Chrome. Tap **ADD TO HOME SCREEN** on the
+start screen, or use Chrome's ⋮ menu → *Install app*.
 
 Once installed it works with no signal.
 
@@ -40,7 +62,7 @@ Keyboard: arrow keys, space to jump, F for fullscreen.
 
 Under the START button:
 
-- **BUILD 1.5 · JS OK** in green — good.
+- **BUILD 1.7 · JS OK** in green — good.
 - **JS NOT RUNNING** in red — the script died; the game won't respond.
 
 A red bar across the bottom means an error, and it says what. Tap to dismiss.
@@ -57,6 +79,8 @@ cached copy — add `?v=2` to the end of the URL (then `?v=3`, and so on).
 | `sw.js` | Makes it work offline |
 | `icon-*.png`, `apple-touch-icon.png` | App icons |
 | `tools/make-icons.ps1` | Regenerates those icons |
+| `West Trojan - Red Black Logo.jpeg` | The school logo artwork |
+| `trojan-logo-*.png`, `tools/make-logo.ps1` | Cleaned-up logo and the script that makes it |
 | `CLAUDE West Trojan Game.md` | Notes for working on the code |
 
 See the notes file before changing anything — it records several fixes that

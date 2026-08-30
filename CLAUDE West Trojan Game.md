@@ -3,7 +3,7 @@
 A browser-based side-scrolling platformer set on Main Street in West, Texas,
 starring the West Trojan mascot. Built as a single self-contained HTML file.
 
-**Current version: BUILD 1.5** (see `index.html`, hardcoded in the markup)
+**Current version: BUILD 1.7** (see `index.html`, hardcoded in the markup)
 
 ---
 
@@ -32,6 +32,9 @@ plain 1.4 behaviour if they are missing:
 | `icon-192.png` `icon-512.png` | Manifest icons | Android install |
 | `icon-maskable-512.png` | Android adaptive-icon safe zone | Android icon shape |
 | `apple-touch-icon.png` | Belt-and-braces iOS icon | iOS fallback (see below) |
+| `West Trojan - Red Black Logo.jpeg` | Source artwork for the school mark | Regenerating the logo |
+| `trojan-logo-256.png` | Cleaned mark; its base64 is what is inlined | The badge and school crest |
+| `trojan-logo-512.png` | Same at 2x, for any future icon work | Nothing yet |
 
 The apple-touch-icon and the favicon are **inlined into `index.html` as data
 URIs**, specifically so the lone-file deploy still gets a real Home Screen icon
@@ -85,8 +88,42 @@ an earlier absolute-coordinate version broke on rotation.
 
 ## Game content
 
-- **Player**: Trojan — black helmet, red plume crest, red tunic, cape, shield
-- **Enemies**: armadillos (slow patrol), tumbleweeds (fast rollers), both stompable
+- **Player**: Trojan — black helmet, red plume crest, red tunic, cape, a round
+  shield carrying a gold **W**, and a short sword in the front hand. 34x50 normal,
+  42x62 in the kolache form. All the art scales off `S = h/42`, so changing `P.h`
+  resizes the whole character; the 42 divisor is a reference, not the height.
+  The shield's W is drawn as text and survives the left-facing `scale(-1,1)`
+  because a sans-serif W is horizontally symmetric.
+- **Enemies**: scorpions (slow patrol), rattlesnakes (faster), both stompable.
+  Speeds come from `ENEMY_SEED` multiplied by `ENEMY_SPEED_SCALE` — change the
+  scale to repace the level, not the 21 seed rows, which are level design.
+  Both kept the old hitboxes (38x26, 34x32) when the art changed, so the
+  difficulty is unchanged from the armadillo/tumbleweed builds.
+- **Lava pits**: the eight street pits are lava, the pool sitting halfway down
+  the shaft so the hazard reads from the sidewalk. `lavaGrad` is cached beside
+  `skyGrad`/`pitGrad` — never build it per frame. The heat glow is drawn bands,
+  not `shadowBlur`, which is banned here.
+- **West Trojans logo**: the **real school mark**, not a drawing of it. Source is
+  `West Trojan - Red Black Logo.jpeg` in the project root;
+  `tools/make-logo.ps1` crops it to the ink, snaps the JPEG's ringing noise back
+  to the three real ink colours, and scales it down to `trojan-logo-256.png` /
+  `-512.png`. Snapping before scaling is what keeps the edges clean and roughly
+  halves the PNG, which matters because it gets inlined.
+  - The artwork lives in **exactly one place**: the data URI on `#logoImg`, the
+    `<image>` inside the badge SVG. `drawTrojanLogo()` reads that attribute back
+    into an `Image` for canvas use rather than carrying a second 16KB copy of
+    the same base64. Re-inline that one attribute if the art ever changes.
+  - **The mark is opaque.** The source is a JPEG, so there is no alpha to key
+    out and it keeps its white ground. Anything it is drawn on must therefore be
+    white, which is why the badge shield and the school's gable plaque are both
+    `#FFFFFF` rather than the bone used elsewhere. Put it on any other colour and
+    you get a white box around it.
+  - `drawTrojanLogo()` no-ops until `logoOK` flips on the image's `onload`, so a
+    slow decode shows nothing rather than throwing in the render loop.
+  - Earlier builds hand-traced this as vector paths and it never read correctly —
+    two same-red shapes at badge size merge no matter how the outlines are
+    weighted, and the W's centre peak fired a miter spike through the T. Don't
+    go back to that; use the artwork.
 - **Fruit**: apple 100, banana 150, orange 200, strawberry 250, watermelon 400
 - **Power-ups**: Kolache (grow, absorb one hit), Lone Star (invincible ~9s),
   Spring Boots (high jump ~11s)
@@ -97,6 +134,14 @@ an earlier absolute-coordinate version broke on rotation.
   the storefronts at 0.55 parallax, visible through gaps, spawns every 10–15s
   in a random direction with a horn.
 - **Goal**: football goal posts with a GO TROJANS banner
+- **West Elementary**: a one-off landmark in the far layer at the end of the
+  street, red brick and black with the TW crest in the gable. Unlike the silos
+  it is anchored to a world position, not tiled by modulo. Its horizontal offset
+  (`VW*0.66`) is tuned against the camera's *final clamped* position, where the
+  last stretch is open sky: centred, its name board sat behind the GO TROJANS
+  banner; further left it vanished behind the Spirit Shop. It is also
+  deliberately taller than the silos — at the storefronts' height the whole
+  building hid behind a single shopfront and only the flagpole showed.
 
 ---
 
@@ -199,21 +244,33 @@ that tag carries its own copy and will otherwise keep showing the old shield.
 
 ## Hosting
 
-Netlify Drop is still the intended path, but **drag the whole folder now**, not
-just `index.html` — the manifest, worker, and icons have to be siblings of the
-HTML for install to work. Then Safari → Share → Add to Home Screen. Re-drop the
-folder onto the same site to publish updates.
+Live at **<https://wleslielong.github.io/West-Trojan-Run/>**, served by GitHub
+Pages from the `main` branch of `wleslielong/West-Trojan-Run`, root folder. The
+repo is public because Pages will not serve a private repo on a free account.
+Deploy is: commit, push, wait a minute. Netlify Drop is no longer used.
 
-Dragging `index.html` on its own still works and still plays. You lose the
-Android install prompt and offline play; iOS install still works, with the
-correct icon, off the inlined data URI.
+The site is a **project page, so it lives on a subpath**, not a domain root.
+That is why every path in the manifest, the worker, and the registration call is
+relative. Verified under the subpath: `start_url` and `scope` both resolve to
+`/West-Trojan-Run/`, scope covers the page, and every precache entry lands inside
+it. Do not switch any of these to a leading-slash absolute path — that would
+resolve to `wleslielong.github.io/` and break install and offline in one move.
 
-HTTPS is required for the service worker. Netlify gives that automatically.
-`file://` has no service worker support at all, which is why registration is
-guarded by a protocol check rather than treated as an error.
+One consequence of the subpath: iOS's root auto-discovery of
+`/apple-touch-icon.png` cannot fire, because that resolves to the domain root,
+which belongs to the user page, not this repo. The inlined data URI is what
+actually supplies the iOS icon here. The file is still worth keeping for a
+future move to a custom domain or a root deploy.
 
-No-cache meta tags are already in the head. If a stale copy still loads, append
-`?v=N` to the URL.
+HTTPS is required for the service worker. Pages enforces it — plain HTTP 301s to
+HTTPS. `file://` has no service worker support at all, which is why registration
+is guarded by a protocol check rather than treated as an error.
+
+No-cache meta tags are already in the head, but Pages fronts everything with a
+CDN cache of roughly 10 minutes, so a fresh deploy is not always instant. If a
+stale copy persists past that, append `?v=N` to the URL.
+
+**Confirmed working on iPad**, installed to the Home Screen from Safari.
 
 ## Testing
 
@@ -242,6 +299,15 @@ Install-specific checks, which need a real HTTPS host:
 ---
 
 ## Known issues
+
+- **The app icons and the start-screen badge diverged in 1.6, and still are.**
+  The badge now carries the real West Trojans mark; `tools/make-icons.ps1` still
+  draws the old shield-and-plume, so the Home Screen icon is unchanged. Left
+  deliberately: regenerating changes the icon on every device that already
+  installed the app, which is the owner's call, not a silent side effect.
+  Since 1.7 the fix is easy — `trojan-logo-512.png` is real artwork, so the icon
+  script just needs to composite it onto the shield instead of drawing a plume,
+  and then the apple-touch-icon base64 gets re-inlined.
 
 - `drawPower`, kolache branch: the line ending `ctx.stroke===null;` is a typo
   for a stroke call and currently does nothing. Harmless — it silently skips an

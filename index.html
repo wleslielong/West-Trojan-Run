@@ -71,7 +71,7 @@
     align-items:center;justify-content:center;text-align:center;z-index:6;color:var(--bone);
     background:rgba(10,10,14,.62);padding:20px;}
   #msg.hidden{display:none;}
-  #msg .badge{width:64px;height:64px;margin-bottom:10px;}
+  #msg .badge{width:96px;height:96px;margin-bottom:8px;}
   #msg h1{margin:0 0 6px;font-size:clamp(24px,6vw,40px);letter-spacing:2px;color:var(--gold);
     text-shadow:0 3px 0 rgba(0,0,0,.5);}
   #msg h2{margin:0 0 10px;font-size:clamp(13px,3.2vw,17px);letter-spacing:1px;color:var(--bone);opacity:.85;font-weight:600;}
@@ -126,7 +126,7 @@
     </svg>
   </button>
   <div id="fsHint"></div>
-  <div id="vtag">v1.5</div>
+  <div id="vtag">v1.7</div>
   <div id="errbar"></div>
 
   <div id="hud">
@@ -139,15 +139,20 @@
   <div id="pw"><span id="pwName"></span><div id="pwbar"><div id="pwfill"></div></div></div>
 
   <div id="msg">
-    <svg class="badge" viewBox="0 0 64 64"><path d="M32 4 L56 12 V32 C56 47 45 56 32 60 C19 56 8 47 8 32 V12 Z" fill="#141414" stroke="#E8B33C" stroke-width="3"/><path d="M32 16 L40 24 L32 48 L24 24 Z" fill="#CC0022"/></svg>
+    <!-- Real West Trojans mark, inlined as a data URI so the file stays self-
+         contained. The shield is pure white so the logo's own white ground
+         blends into it invisibly — the JPEG has no alpha to key out.
+         The game canvas reuses this same data URI via #logoImg, so the base64
+         is stored once. Regenerate the PNG with tools/make-logo.ps1. -->
+    <svg class="badge" viewBox="0 0 64 64"><path d="M32 4 L56 12 V32 C56 47 45 56 32 60 C19 56 8 47 8 32 V12 Z" fill="#FFFFFF" stroke="#141414" stroke-width="3"/><image id="logoImg" href="data:image/png;base64,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" x="17" y="16" width="30" height="30"/></svg>
     <h1>WEST TROJAN RUN</h1>
     <h2>MAIN STREET · WEST, TEXAS</h2>
-    <p>Run the length of Main Street, grab the fruit, dodge the armadillos and tumbleweeds, and reach the goal posts.</p>
+    <p>Run the length of Main Street, grab the fruit, dodge the scorpions and rattlesnakes, and reach the goal posts.</p>
     <p>◀ ▶ to move · JUMP to hop · stomp enemies from above</p>
     <button id="startBtn">START</button>
     <button id="installBtn" hidden>ADD TO HOME SCREEN</button>
     <div id="iosTip" hidden></div>
-    <div id="build">BUILD 1.5 &middot; <span id="jsflag">JS NOT RUNNING</span></div>
+    <div id="build">BUILD 1.7 &middot; <span id="jsflag">JS NOT RUNNING</span></div>
   </div>
 
   <div id="controls">
@@ -168,7 +173,10 @@ const pwEl=document.getElementById('pw'), pwName=document.getElementById('pwName
 
 let DPR=Math.min(window.devicePixelRatio||1,2), VW=1000, VH=620, GROUND=0;
 const CURB=64; // height of street band below sidewalk line
-let skyGrad=null, pitGrad=null, CDPR=0, cacheOK=false;
+// Lava sits roughly halfway down the pit shaft, so you can read the hazard from
+// the sidewalk instead of discovering it on the way down.
+const PIT_DEPTH=CURB+26, LAVA_DROP=PIT_DEPTH*0.5;
+let skyGrad=null, pitGrad=null, lavaGrad=null, CDPR=0, cacheOK=false;
 const PADX=12, PADT=18;
 
 function pickDPR(w,h){
@@ -206,9 +214,12 @@ function buildGradients(){
   try{
     skyGrad=ctx.createLinearGradient(0,0,0,Math.max(1,GROUND));
     skyGrad.addColorStop(0,'#6FB3E0'); skyGrad.addColorStop(.62,'#A9D4EC'); skyGrad.addColorStop(1,'#F6DEB4');
-    pitGrad=ctx.createLinearGradient(0,GROUND,0,GROUND+26+CURB);
-    pitGrad.addColorStop(0,'#2A2620'); pitGrad.addColorStop(1,'#100E0B');
-  }catch(e){ skyGrad=null; pitGrad=null; }
+    pitGrad=ctx.createLinearGradient(0,GROUND,0,GROUND+PIT_DEPTH);
+    pitGrad.addColorStop(0,'#2A2620'); pitGrad.addColorStop(1,'#140A06');
+    lavaGrad=ctx.createLinearGradient(0,GROUND+LAVA_DROP,0,GROUND+PIT_DEPTH);
+    lavaGrad.addColorStop(0,'#FFD861'); lavaGrad.addColorStop(.16,'#FF8A1E');
+    lavaGrad.addColorStop(.55,'#E03A0B'); lavaGrad.addColorStop(1,'#8E0C04');
+  }catch(e){ skyGrad=null; pitGrad=null; lavaGrad=null; }
 }
 
 // The cached storefront bitmaps are independent of GROUND, so they only need
@@ -335,27 +346,32 @@ const POWERS=[
  {x:5900,hA:44 ,kind:'kolache',taken:false}
 ];
 
-// enemies: armadillo (slow walker) / tumbleweed (fast roller)
+// enemies: scorpion (slow walker) / rattlesnake (faster slitherer)
 const ENEMY_SEED=[
- [560 ,0,'dillo',700 ,1.5],[1080,0,'weed' ,1210,2.4],[1350,0,'dillo',1470,1.6],
- [1720,0,'weed' ,1880,2.6],[2020,0,'dillo',2160,1.5],[2340,0,'dillo',2500,1.7],
- [2680,0,'weed' ,2830,2.5],[3020,0,'dillo',3160,1.6],[3300,0,'dillo',3440,1.8],
- [3620,0,'weed' ,3790,2.6],[3980,0,'dillo',4120,1.6],[4260,0,'dillo',4400,1.7],
- [4600,0,'weed' ,4780,2.5],[4960,0,'dillo',5090,1.6],[5250,0,'dillo',5420,1.8],
- [5600,0,'weed' ,5760,2.6],[6000,0,'dillo',6160,1.6],
- [1250,120,'dillo',1460,1.3],[2580,116,'dillo',2790,1.3],[3870,104,'dillo',4080,1.3],[4890,116,'dillo',5080,1.3]
+ [560 ,0,'scorp',700 ,1.5],[1080,0,'snake' ,1210,2.4],[1350,0,'scorp',1470,1.6],
+ [1720,0,'snake' ,1880,2.6],[2020,0,'scorp',2160,1.5],[2340,0,'scorp',2500,1.7],
+ [2680,0,'snake' ,2830,2.5],[3020,0,'scorp',3160,1.6],[3300,0,'scorp',3440,1.8],
+ [3620,0,'snake' ,3790,2.6],[3980,0,'scorp',4120,1.6],[4260,0,'scorp',4400,1.7],
+ [4600,0,'snake' ,4780,2.5],[4960,0,'scorp',5090,1.6],[5250,0,'scorp',5420,1.8],
+ [5600,0,'snake' ,5760,2.6],[6000,0,'scorp',6160,1.6],
+ [1250,120,'scorp',1460,1.3],[2580,116,'scorp',2790,1.3],[3870,104,'scorp',4080,1.3],[4890,116,'scorp',5080,1.3]
 ];
 let enemies=[];
+// One knob rather than 21 edited seed rows: the patrol ranges above are tuned
+// level design, the pace is a separate decision. Lower this to slow the level
+// down, raise it to speed it up, without touching the layout.
+const ENEMY_SPEED_SCALE=0.65;
 function seedEnemies(){
-  enemies=ENEMY_SEED.map(e=>({x:e[0],hA:e[1],type:e[2],min:e[0],max:e[3],speed:e[4],dir:1,alive:true,
-    w:e[2]==='weed'?34:38,h:e[2]==='weed'?32:26,spin:0}));
+  enemies=ENEMY_SEED.map(e=>({x:e[0],hA:e[1],type:e[2],min:e[0],max:e[3],
+    speed:e[4]*ENEMY_SPEED_SCALE,dir:1,alive:true,
+    w:e[2]==='snake'?34:38,h:e[2]==='snake'?32:26,spin:0}));
 }
 
 const CHECKPOINTS=[{x:2230,hit:false},{x:4160,hit:false}];
 const GOAL_X=WORLD-150;
 
 /* ================= STATE ================= */
-const P={x:70,y:0,w:30,h:42,vx:0,vy:0,onGround:false,face:1,big:false,inv:0,invuln:0,hi:0,coyote:0,jumpHeld:false,anim:0};
+const P={x:70,y:0,w:34,h:50,vx:0,vy:0,onGround:false,face:1,big:false,inv:0,invuln:0,hi:0,coyote:0,jumpHeld:false,anim:0};
 let camX=0, score=0, fruitGot=0, lives=3, state='ready', spawnX=70, parts=[], pops=[];
 let train=null, trainTimer=280, clouds=[];
 
@@ -598,7 +614,9 @@ function update(){
     if(!e.alive)continue;
     e.x+=e.dir*e.speed;
     if(e.x<e.min){e.x=e.min;e.dir=1;} if(e.x>e.max){e.x=e.max;e.dir=-1;}
-    if(e.type==='weed') e.spin+=e.dir*0.14;
+    // spin was a tumbleweed roll; for the snake it is just a slither phase, so it
+    // advances at its own rhythm instead of tracking travel direction.
+    if(e.type==='snake') e.spin+=0.18;
     const ey=GROUND-e.hA-e.h;
     if(Math.abs(P.x-e.x)<(P.w*0.5+e.w*0.5-6) && P.y+P.h>ey && P.y<ey+e.h){
       if(P.inv>0){ e.alive=false; score+=200; pop(e.x,ey,'200'); puff(e.x,GROUND-e.hA,'#E8B33C'); beep(700,.09); }
@@ -657,7 +675,7 @@ function update(){
 
 function grab(kind,x,y){
   if(kind==='kolache'){
-    if(!P.big){ P.big=true; P.w=38; P.h=54; P.y-=12; }
+    if(!P.big){ P.big=true; P.w=42; P.h=62; P.y-=12; }
     score+=500; pop(x,y,'BIG TROJAN'); chirp(300,760,.22);
   } else if(kind==='star'){
     P.inv=560; score+=500; pop(x,y,'INVINCIBLE'); chirp(500,1200,.3);
@@ -678,7 +696,7 @@ function clearPw(){ if(P.inv<=0&&P.hi<=0) pwEl.style.display='none'; }
 
 function hurt(pit){
   if(!pit && P.big){
-    P.big=false; P.w=30; P.h=42; P.invuln=110; puff(P.x,P.y+20,'#F0D9A8'); beep(200,.18,'square',.05);
+    P.big=false; P.w=34; P.h=50; P.invuln=110; puff(P.x,P.y+20,'#F0D9A8'); beep(200,.18,'square',.05);
     return;
   }
   lives--; syncHUD(); beep(160,.35,'sawtooth',.06);
@@ -751,6 +769,14 @@ function drawFarLayer(){
   drawSilos(silo+1150,GROUND-92);
   // water tower "WEST"
   drawWaterTower(((-px*0.9)%2200+2200)%2200 + 640, GROUND-96);
+  // The school is a one-off landmark, not tiled scenery like the silos, so it
+  // is anchored to a world position instead of a modulo, drifting in at
+  // far-layer parallax as you approach the end of the street.
+  // The offset is tuned against the camera's final clamped position, where the
+  // last stretch of street is open sky. Centred, the school's name board sat
+  // behind the GO TROJANS banner and neither read; further left it disappeared
+  // behind the Spirit Shop. VW*0.66 parks it in the clear gap past the goal, fully on screen.
+  drawSchool((GOAL_X-camX)*0.28 + VW*0.66, GROUND-92);
 }
 function drawSilos(x,baseY){
   ctx.fillStyle='#CFCBBF';
@@ -771,6 +797,78 @@ function drawWaterTower(x,baseY){
   ctx.moveTo(x-24,baseY-108); ctx.lineTo(x+24,baseY-108); ctx.lineTo(x,baseY-126); ctx.closePath(); ctx.fill();
   ctx.fillStyle='#CC0022'; ctx.font='bold 11px sans-serif'; ctx.textAlign='center';
   ctx.fillText('WEST',x,baseY-84);
+}
+// Real West Trojans mark. The artwork lives in exactly one place — the data URI
+// on #logoImg in the badge SVG up in the markup — and this reads it back rather
+// than carrying a second 16KB copy of the same base64.
+const LOGO=new Image(); let logoOK=false;
+LOGO.onload=function(){ logoOK=true; };
+try{
+  var _li=document.getElementById('logoImg');
+  if(_li) LOGO.src=_li.getAttribute('href')||_li.getAttribute('xlink:href')||'';
+}catch(e){}
+
+// The mark is opaque with a white ground (the source is a JPEG, no alpha to key
+// out), so whatever it lands on has to be white or the ground shows as a box.
+// That is why the badge shield and the school plaque are both pure white.
+function drawTrojanLogo(cx,cy,size){
+  if(!logoOK) return;
+  ctx.drawImage(LOGO,cx-size/2,cy-size/2,size,size);
+}
+function drawSchool(x,baseY){
+  if(x>VW+260||x<-260)return;
+  // Deliberately taller than the silos. The far layer sits behind the
+  // storefronts, and at 98px the whole building hid behind a single shopfront —
+  // only the flagpole showed. It has to clear the roofline to read at all.
+  const W=230, H=132, hw=W/2, top=baseY-H;
+
+  // main block, Trojan red with darker brick courses
+  ctx.fillStyle='#A5102A'; ctx.fillRect(x-hw,top,W,H);
+  ctx.fillStyle='#8E0018';
+  for(let i=1;i<8;i++) ctx.fillRect(x-hw,top+i*16,W,2);
+  ctx.fillStyle='#16161A'; ctx.fillRect(x-hw,baseY-18,W,18);       // base course
+  ctx.fillStyle='#16161A'; ctx.fillRect(x-hw-8,top-11,W+16,12);    // roof cap
+
+  // raised centre gable over the entrance
+  ctx.fillStyle='#16161A';
+  ctx.beginPath();
+  ctx.moveTo(x-52,top-11); ctx.lineTo(x+52,top-11); ctx.lineTo(x,top-56);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#C01230';
+  ctx.beginPath();
+  ctx.moveTo(x-41,top-15); ctx.lineTo(x+41,top-15); ctx.lineTo(x,top-48);
+  ctx.closePath(); ctx.fill();
+  // school crest on a white plaque — the mark is opaque with a white ground
+
+  ctx.fillStyle='#FFFFFF';
+  ctx.beginPath(); ctx.arc(x,top-26,19,0,6.3); ctx.fill();
+  drawTrojanLogo(x,top-26,25);
+
+  // flagpole
+  ctx.strokeStyle='#9A9488'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(x-86,top-11); ctx.lineTo(x-86,top-74); ctx.stroke();
+  ctx.fillStyle='#CC0022'; ctx.fillRect(x-85,top-74,19,12);
+
+  // name board
+  ctx.fillStyle='#16161A'; ctx.fillRect(x-hw+9,top+7,W-18,22);
+  ctx.fillStyle='#E8B33C';
+  ctx.font='bold 14px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('WEST ELEMENTARY',x,top+23);
+
+  // windows, two rows, lower row skipping the doorway bay
+  for(let r=0;r<2;r++) for(let i=0;i<9;i++){
+    const wx=x-hw+14+i*25, wy=top+42+r*36;
+    if(r===1 && Math.abs(wx+9-x)<30) continue;
+    ctx.fillStyle='#F2E7C6'; ctx.fillRect(wx,wy,18,26);
+    ctx.strokeStyle='#8E0018'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(wx+9,wy); ctx.lineTo(wx+9,wy+26); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(wx,wy+13); ctx.lineTo(wx+18,wy+13); ctx.stroke();
+  }
+
+  // doors
+  ctx.fillStyle='#C01230'; ctx.fillRect(x-25,baseY-56,50,6);
+  ctx.fillStyle='#16161A'; ctx.fillRect(x-20,baseY-50,40,32);
+  ctx.fillStyle='#E8B33C'; ctx.fillRect(x-1,baseY-50,2,32);
 }
 
 function drawTrainLayer(){
@@ -837,8 +935,42 @@ function drawStreetAndBuildings(){
 
   // pits (cut out street + hazard barrels)
   PITS.forEach(p=>{
-    ctx.fillStyle=pitGrad||'#1A1712'; ctx.fillRect(p.x,sw,p.w,CURB+26);
+    const sx=p.x-camX; if(sx>VW+80||sx+p.w<-80)return;
+    const lavaY=sw+LAVA_DROP, t=Date.now()/420;
+
+    // shaft
+    ctx.fillStyle=pitGrad||'#1A1712'; ctx.fillRect(p.x,sw,p.w,PIT_DEPTH);
     ctx.fillStyle='#3A342B'; ctx.fillRect(p.x,sw,p.w,5);
+
+    // heat on the shaft walls above the pool. A drawn band, not shadowBlur —
+    // shadowBlur is banned here, it wrecks Safari's frame rate.
+    ctx.globalAlpha=0.30; ctx.fillStyle='#FF7A18';
+    ctx.fillRect(p.x,lavaY-12,p.w,12);
+    ctx.globalAlpha=0.16;
+    ctx.fillRect(p.x,lavaY-26,p.w,14);
+    ctx.globalAlpha=1;
+
+    // the pool itself
+    ctx.fillStyle=lavaGrad||'#D2321A';
+    ctx.fillRect(p.x,lavaY,p.w,PIT_DEPTH-LAVA_DROP);
+
+    // molten surface, bobbing in three segments so it never sits dead flat
+    const seg=p.w/3;
+    ctx.fillStyle='#FFE58A';
+    for(let i=0;i<3;i++){
+      const bob=Math.sin(t+p.x*0.013+i*1.9)*1.5;
+      ctx.fillRect(p.x+i*seg+1, lavaY-1+bob, seg-2, 3);
+    }
+    // slow bubbles
+    ctx.fillStyle='#FFB03A';
+    for(let i=0;i<2;i++){
+      const ph=(t*0.55+i*0.5+p.x*0.007)%1;
+      const bx=p.x+seg*(0.6+i*1.5), by=lavaY+(PIT_DEPTH-LAVA_DROP)*(1-ph)*0.7;
+      ctx.globalAlpha=0.35*(1-ph);
+      ctx.beginPath(); ctx.arc(bx,by,1.6+ph*2.2,0,6.3); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+
     drawBarrel(p.x-12,sw); drawBarrel(p.x+p.w+12,sw);
   });
 
@@ -881,7 +1013,7 @@ function drawStreetAndBuildings(){
     ctx.fillStyle='#8A8578'; ctx.fillRect(c.x-2,GROUND-84,4,84);
     ctx.fillStyle=c.hit?'#CC0022':'#8E8B82';
     ctx.fillRect(c.x-24,GROUND-92,48,26);
-    ctx.fillStyle='#F3EFE6'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center';
+    ctx.fillStyle='#FFFFFF'; ctx.font='bold 12px sans-serif'; ctx.textAlign='center';
     ctx.fillText('WEST',c.x,GROUND-74);
   });
 
@@ -890,8 +1022,8 @@ function drawStreetAndBuildings(){
     if(!e.alive)return;
     const sx=e.x-camX; if(sx>VW+60||sx<-60)return;
     const y=GROUND-e.hA-e.h;
-    if(e.type==='dillo') drawDillo(e.x,y,e.w,e.h,e.dir);
-    else drawWeed(e.x,y,e.w,e.h,e.spin);
+    if(e.type==='scorp') drawScorpion(e.x,y,e.w,e.h,e.dir);
+    else drawRattler(e.x,y,e.w,e.h,e.spin,e.dir);
   });
 
   drawGoal(GOAL_X,GROUND);
@@ -919,7 +1051,7 @@ function drawStreetAndBuildings(){
 
 function drawBarrel(x,y){
   ctx.fillStyle='#E86A1E'; ctx.fillRect(x-8,y-30,16,30);
-  ctx.fillStyle='#F3EFE6'; ctx.fillRect(x-8,y-24,16,5); ctx.fillRect(x-8,y-12,16,5);
+  ctx.fillStyle='#FFFFFF'; ctx.fillRect(x-8,y-24,16,5); ctx.fillRect(x-8,y-12,16,5);
 }
 
 function paintBuilding(b,c){
@@ -1049,34 +1181,131 @@ function star5(cx,cy,R,r){
   ctx.closePath(); ctx.fill();
 }
 
-function drawDillo(x,y,w,h,dir){
+// Both enemies keep the old hitboxes (38x26 and 34x32) on purpose. The art
+// changed; the level's difficulty did not.
+function drawScorpion(x,y,w,h,dir){
   ctx.save(); ctx.translate(x,y+h);
   if(dir<0) ctx.scale(-1,1);
-  const step=Math.sin(Date.now()/110)*2;
-  ctx.fillStyle='#8C7A5E';
-  ctx.fillRect(-10,-4,4,4+step); ctx.fillRect(4,-4,4,4-step);
-  ctx.fillStyle='#A89376';
-  ctx.beginPath(); ctx.ellipse(0,-h*0.5,w*0.5,h*0.5,0,Math.PI,0); ctx.closePath(); ctx.fill();
-  ctx.strokeStyle='#7E6B4F'; ctx.lineWidth=1.5;
-  for(let i=-2;i<=2;i++){ ctx.beginPath(); ctx.moveTo(i*6,-h*0.5-6); ctx.lineTo(i*6,-2); ctx.stroke(); }
-  ctx.fillStyle='#BFAC90';
-  ctx.beginPath(); ctx.ellipse(w*0.5,-8,8,6,0,0,6.3); ctx.fill();
-  ctx.fillStyle='#2B2B2B'; ctx.beginPath(); ctx.arc(w*0.5+3,-10,1.8,0,6.3); ctx.fill();
-  ctx.strokeStyle='#8C7A5E'; ctx.lineWidth=3;
-  ctx.beginPath(); ctx.moveTo(-w*0.5,-6); ctx.lineTo(-w*0.5-10,-1); ctx.stroke();
+  const t=Date.now()/150, step=Math.sin(t)*1.5, curl=Math.sin(t*0.7)*1.1;
+  const shell='#8A5620', body='#653A12', dark='#3C2209', gloss='#B07A32';
+
+  // eight legs, splayed out from under the body, alternating with the walk
+  ctx.strokeStyle=dark; ctx.lineWidth=1.7; ctx.lineCap='round'; ctx.lineJoin='round';
+  for(let i=0;i<4;i++){
+    const lx=-8+i*4.6, s=(i%2)?step:-step;
+    ctx.beginPath(); ctx.moveTo(lx,-8); ctx.lineTo(lx-4.5+s,-4); ctx.lineTo(lx-6.5+s,0); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(lx,-8); ctx.lineTo(lx+3.5-s,-4); ctx.lineTo(lx+5.5-s,0); ctx.stroke();
+  }
+
+  // tail: distinct beads arcing up over the back, stinger curling forward.
+  // Kept inside the 26px hitbox so what you stomp is what you see.
+  const seg=[[-12,-10],[-16,-14],[-16.5,-19],[-13,-22],[-8,-23]];
+  ctx.strokeStyle=body; ctx.lineWidth=5; ctx.lineJoin='round';
+  ctx.beginPath(); ctx.moveTo(seg[0][0],seg[0][1]);
+  for(let i=1;i<seg.length;i++) ctx.lineTo(seg[i][0],seg[i][1]-curl*(i/seg.length));
+  ctx.stroke();
+  ctx.fillStyle=gloss;
+  for(let i=0;i<seg.length;i++){
+    ctx.beginPath(); ctx.arc(seg[i][0],seg[i][1]-curl*(i/seg.length),2.4,0,6.3); ctx.fill();
+  }
+  ctx.fillStyle=dark;                                     // stinger
+  ctx.beginPath();
+  ctx.moveTo(-8,-25.5-curl); ctx.lineTo(-2,-21-curl); ctx.lineTo(-8.5,-20.5-curl);
+  ctx.closePath(); ctx.fill();
+
+  // abdomen, ridged
+  ctx.fillStyle=shell;
+  ctx.beginPath(); ctx.ellipse(-3,-9.5,10,5.4,0,0,6.3); ctx.fill();
+  ctx.fillStyle=body;
+  ctx.beginPath(); ctx.ellipse(-3,-9.5,10,5.4,0,Math.PI,0); ctx.fill();
+  ctx.strokeStyle=dark; ctx.lineWidth=1;
+  for(let i=-2;i<=2;i++){
+    ctx.beginPath(); ctx.moveTo(-3+i*3.5,-14.6); ctx.lineTo(-3+i*3.5,-4.4); ctx.stroke();
+  }
+  // head plate
+  ctx.fillStyle=shell;
+  ctx.beginPath(); ctx.ellipse(8,-9.5,6,4.4,0,0,6.3); ctx.fill();
+
+  // pincer arms reaching forward, claws opening and closing
+  for(const s of [-1,1]){
+    const ey=-9.5+s*3.6;
+    ctx.strokeStyle=body; ctx.lineWidth=2.6; ctx.lineCap='round';
+    ctx.beginPath(); ctx.moveTo(10,-9.5); ctx.lineTo(15,ey); ctx.stroke();
+    ctx.fillStyle=shell;
+    ctx.beginPath(); ctx.ellipse(17.4,ey,4.8,3,s*0.22,0,6.3); ctx.fill();
+    const gap=1.6+step*0.4;
+    ctx.strokeStyle=dark; ctx.lineWidth=1.5; ctx.lineCap='butt';
+    ctx.beginPath();
+    ctx.moveTo(21.8,ey-gap); ctx.lineTo(16.2,ey-0.3);
+    ctx.moveTo(21.8,ey+gap); ctx.lineTo(16.2,ey+0.3);
+    ctx.stroke();
+  }
+
+  // eyes
+  ctx.fillStyle='#141414';
+  ctx.beginPath(); ctx.arc(8,-11.8,1.4,0,6.3); ctx.fill();
+  ctx.beginPath(); ctx.arc(8,-7.4,1.4,0,6.3); ctx.fill();
   ctx.restore();
 }
-function drawWeed(x,y,w,h,spin){
-  ctx.save(); ctx.translate(x,y+h*0.5); ctx.rotate(spin);
-  ctx.strokeStyle='#A98E52'; ctx.lineWidth=2.4;
-  for(let i=0;i<9;i++){
-    const a=i*0.7;
-    ctx.beginPath(); ctx.moveTo(Math.cos(a)*3,Math.sin(a)*3);
-    ctx.lineTo(Math.cos(a)*h*0.5,Math.sin(a)*h*0.5); ctx.stroke();
+function drawRattler(x,y,w,h,phase,dir){
+  ctx.save(); ctx.translate(x,y+h);
+  if(dir<0) ctx.scale(-1,1);
+  const sway=Math.sin(phase)*2.6, buzz=Math.sin(phase*3.2)*1.8;
+  const tan='#BE9455', dk='#4E3A20', cream='#EBD9AC';
+
+  // coiled base
+  ctx.lineCap='round'; ctx.lineJoin='round';
+  ctx.strokeStyle=tan; ctx.lineWidth=7.5;
+  ctx.beginPath(); ctx.ellipse(-1,-6,w*0.40,5,0,0,6.3); ctx.stroke();
+  ctx.strokeStyle=dk; ctx.lineWidth=1.4;
+  ctx.beginPath(); ctx.ellipse(-1,-6,w*0.40,5,0,0,6.3); ctx.stroke();
+  ctx.fillStyle=dk;                                      // diamond markings
+  for(let i=-1;i<=1;i++){
+    ctx.beginPath();
+    ctx.moveTo(i*9,-13); ctx.lineTo(i*9+3.2,-10); ctx.lineTo(i*9,-7); ctx.lineTo(i*9-3.2,-10);
+    ctx.closePath(); ctx.fill();
   }
-  ctx.strokeStyle='#C4A867'; ctx.lineWidth=2;
-  ctx.beginPath(); ctx.arc(0,0,h*0.34,0,6.3); ctx.stroke();
-  ctx.beginPath(); ctx.arc(0,0,h*0.5,0,6.3); ctx.stroke();
+
+  // rattle, held up at the back and buzzing
+  ctx.strokeStyle=tan; ctx.lineWidth=4;
+  ctx.beginPath();
+  ctx.moveTo(-w*0.36,-8);
+  ctx.quadraticCurveTo(-w*0.54,-16, -w*0.44+buzz,-23);
+  ctx.stroke();
+  ctx.fillStyle=cream;
+  for(let i=0;i<3;i++){
+    ctx.beginPath();
+    ctx.ellipse(-w*0.44+buzz*(0.7+i*0.2), -23-i*3.4, 3.1-i*0.35, 2.3, 0, 0, 6.3);
+    ctx.fill();
+  }
+
+  // body rising into a strike-ready S
+  ctx.strokeStyle=tan; ctx.lineWidth=6.4;
+  ctx.beginPath();
+  ctx.moveTo(-3,-9);
+  ctx.quadraticCurveTo(8+sway,-15, 3+sway,-23);
+  ctx.quadraticCurveTo(-1+sway,-29, 8+sway,-31);
+  ctx.stroke();
+
+  // head
+  ctx.fillStyle=tan;
+  ctx.beginPath(); ctx.ellipse(11+sway,-31.5,6.2,4.2,0.12,0,6.3); ctx.fill();
+  ctx.fillStyle=dk;                                      // brow stripe
+  ctx.beginPath(); ctx.ellipse(10+sway,-33.6,4.6,1.5,0.12,0,6.3); ctx.fill();
+  ctx.fillStyle='#F2E27A';                               // eye
+  ctx.beginPath(); ctx.arc(13.4+sway,-32.6,1.7,0,6.3); ctx.fill();
+  ctx.fillStyle='#1A1A1A';
+  ctx.fillRect(13.0+sway,-33.8,0.9,2.4);                 // slit pupil
+
+  // forked tongue, flicked on part of the cycle
+  if(Math.sin(phase*1.7)>0.45){
+    ctx.strokeStyle='#C4324A'; ctx.lineWidth=1.2;
+    ctx.beginPath();
+    ctx.moveTo(16.5+sway,-30.8); ctx.lineTo(21.5+sway,-30.2);
+    ctx.moveTo(21.5+sway,-30.2); ctx.lineTo(24+sway,-31.4);
+    ctx.moveTo(21.5+sway,-30.2); ctx.lineTo(24+sway,-29.2);
+    ctx.stroke();
+  }
   ctx.restore();
 }
 
@@ -1088,7 +1317,7 @@ function drawGoal(x,gy){
   ctx.fillRect(x-52,gy-200,8,80);
   ctx.fillRect(x+44,gy-200,8,80);
   ctx.fillStyle='#CC0022'; ctx.fillRect(x-70,gy-236,140,28);
-  ctx.fillStyle='#F3EFE6'; ctx.font='bold 15px sans-serif'; ctx.textAlign='center';
+  ctx.fillStyle='#FFFFFF'; ctx.font='bold 15px sans-serif'; ctx.textAlign='center';
   ctx.fillText('GO TROJANS',x,gy-217);
 }
 
@@ -1134,14 +1363,37 @@ function drawTrojan(){
   ctx.fillStyle='#CC0022'; ctx.fillRect(-9*S,-h*0.72,18*S,4*S);
   ctx.fillStyle='#E8B33C'; ctx.fillRect(-2*S,-h*0.70,4*S,h*0.18);
 
-  // shield arm (back)
+  // shield arm (back), carrying a gold W for West
   ctx.fillStyle='#8E0018';
-  ctx.beginPath(); ctx.arc(-11*S,-h*0.52,7.5*S,0,6.3); ctx.fill();
-  ctx.fillStyle='#E8B33C'; ctx.beginPath(); ctx.arc(-11*S,-h*0.52,3.2*S,0,6.3); ctx.fill();
+  ctx.beginPath(); ctx.arc(-11*S,-h*0.52,8*S,0,6.3); ctx.fill();
+  ctx.strokeStyle='#E8B33C'; ctx.lineWidth=1.8*S;
+  ctx.beginPath(); ctx.arc(-11*S,-h*0.52,8*S,0,6.3); ctx.stroke();
+  // The W survives the facing flip on its own: a sans-serif W is horizontally
+  // symmetric, so the scale(-1,1) above leaves it reading correctly.
+  ctx.fillStyle='#E8B33C';
+  ctx.font='bold '+(9*S).toFixed(1)+'px sans-serif';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('W',-11*S,-h*0.52);
 
   // sword arm
   ctx.fillStyle='#D8B48C';
   ctx.fillRect(7*S,-h*0.68,5*S,h*0.20);
+
+  // short sword in the front hand, raised a little further on jumps
+  ctx.save();
+  ctx.translate(9.5*S,-h*0.47);
+  ctx.rotate(0.34 + (air?-0.45:run*0.10));
+  ctx.fillStyle='#5A3A1E'; ctx.fillRect(-1.7*S,-2*S,3.4*S,6.4*S);      // grip
+  ctx.fillStyle='#E8B33C';
+  ctx.beginPath(); ctx.arc(0,4.6*S,1.9*S,0,6.3); ctx.fill();            // pommel
+  ctx.fillRect(-5*S,-3.6*S,10*S,2.4*S);                                 // crossguard
+  ctx.fillStyle='#C7CCD4';                                              // blade
+  ctx.beginPath();
+  ctx.moveTo(-2.5*S,-3.6*S); ctx.lineTo(2.5*S,-3.6*S);
+  ctx.lineTo(1.6*S,-15*S); ctx.lineTo(0,-18.5*S); ctx.lineTo(-1.6*S,-15*S);
+  ctx.closePath(); ctx.fill();
+  ctx.fillStyle='#EFF2F6'; ctx.fillRect(-0.7*S,-14.5*S,1.4*S,10.5*S);   // fuller
+  ctx.restore();
 
   // head
   ctx.fillStyle='#D8B48C';
@@ -1179,7 +1431,7 @@ function drawTrojan(){
 }
 
 /* ================= BOOT ================= */
-var VERSION='1.5';
+var VERSION='1.7';
 var errShown='', errCount=0;
 
 // The version is in the HTML already. This only flips the flag to prove the
@@ -1236,7 +1488,7 @@ try{
   hFruitT.textContent=fruit.length;
   P.y=GROUND-P.h;
   showMsg('WEST TROJAN RUN','MAIN STREET · WEST, TEXAS',
-    ['Run the length of Main Street, grab the fruit, dodge the armadillos and tumbleweeds, and reach the goal posts.',
+    ['Run the length of Main Street, grab the fruit, dodge the scorpions and rattlesnakes, and reach the goal posts.',
      '◀ ▶ to move · JUMP to hop · stomp enemies from above'],'START');
   stampVersion();
 }catch(e){ reportErr(e,'boot'); }
