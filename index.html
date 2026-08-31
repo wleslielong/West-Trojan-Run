@@ -36,28 +36,11 @@
   #stage{position:relative;width:100%;height:100%;max-width:1000px;max-height:640px;overflow:hidden;background:#8FC3E8;}
   canvas{display:block;width:100%;height:100%;}
 
-  /* immersive / fullscreen: drop the letterbox caps and fill the screen */
+  /* Standalone (Home Screen) launch: drop the letterbox caps and fill the screen. */
   body.immersive #wrap{padding:0;}
   body.immersive #stage{max-width:none;max-height:none;width:100%;height:100%;}
-  #stage:fullscreen, #stage:-webkit-full-screen{max-width:none;max-height:none;width:100vw;height:100vh;}
 
-  #fsBtn{position:absolute;top:8px;top:calc(8px + env(safe-area-inset-top,0px));
-    right:10px;right:calc(10px + env(safe-area-inset-right,0px));z-index:20;pointer-events:auto;
-    -webkit-appearance:none;appearance:none;margin:0;cursor:pointer;
-    width:40px;height:40px;border-radius:10px;border:2px solid rgba(243,239,230,.5);
-    background:rgba(20,20,20,.5);display:flex;
-    align-items:center;justify-content:center;padding:0;transition:transform .06s,background .06s;}
-  #fsBtn:active{background:rgba(204,0,34,.6);transform:scale(.92);}
-  #fsBtn svg{width:20px;height:20px;fill:none;stroke:#F3EFE6;stroke-width:2.4;
-    stroke-linecap:round;stroke-linejoin:round;}
-  #fsHint{position:absolute;top:56px;top:calc(56px + env(safe-area-inset-top,0px));
-    right:10px;z-index:20;pointer-events:none;
-    background:rgba(20,20,20,.82);color:#F3EFE6;font-size:11px;font-weight:600;
-    padding:7px 10px;border-radius:8px;max-width:210px;line-height:1.35;
-    opacity:0;transition:opacity .25s;}
-  #fsHint.show{opacity:1;}
-
-  #hud{position:absolute;top:0;left:0;right:0;padding:9px 60px 9px 14px;display:flex;justify-content:space-between;
+  #hud{position:absolute;top:0;left:0;right:0;padding:9px 14px;display:flex;justify-content:space-between;
     align-items:flex-start;pointer-events:none;z-index:5;color:var(--bone);font-weight:800;
     text-shadow:0 2px 3px rgba(0,0,0,.55);font-size:14px;letter-spacing:.6px;}
   #hud .grp{display:flex;gap:14px;align-items:center;}
@@ -92,8 +75,29 @@
     max-height:40%;overflow:auto;-webkit-overflow-scrolling:touch;pointer-events:auto;}
   #errbar .hd{color:#FFD9D9;font-size:10px;letter-spacing:1px;margin-bottom:3px;}
 
+  /* Math gate. Above #controls (z-index 10) so the d-pad cannot be poked while
+     a question is up. Big targets — these are five-year-old thumbs. */
+  #math{position:absolute;top:0;left:0;right:0;bottom:0;z-index:12;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:rgba(10,10,14,.9);color:var(--bone);padding:20px;text-align:center;}
+  #math.hidden{display:none;}
+  #mathTitle{font-size:13px;letter-spacing:2.4px;color:var(--gold);font-weight:800;margin-bottom:12px;}
+  #mathQ{font-size:clamp(40px,11vw,76px);font-weight:900;letter-spacing:4px;color:#fff;
+    text-shadow:0 4px 0 rgba(0,0,0,.45);margin-bottom:22px;}
+  #mathChoices{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;}
+  #mathChoices button{width:96px;height:96px;border-radius:22px;border:3px solid var(--gold);
+    background:var(--red);color:#fff;font-size:42px;font-weight:900;padding:0;
+    -webkit-appearance:none;appearance:none;transition:transform .06s,background .06s;}
+  #mathChoices button:active{transform:scale(.9);background:var(--gold);color:var(--blk);}
+  #mathMsg{margin-top:18px;font-size:16px;font-weight:800;letter-spacing:1px;
+    min-height:24px;color:var(--gold);}
+  /* Pulled well in from the screen edges. Flush to the bezel these are an
+     uncomfortable thumb stretch on an iPad held in two hands. */
   #controls{position:absolute;bottom:0;left:0;right:0;z-index:10;display:flex;justify-content:space-between;
-    align-items:flex-end;padding:14px 16px;pointer-events:none;}
+    align-items:flex-end;pointer-events:none;padding:14px 58px;
+    padding-left:calc(58px + env(safe-area-inset-left,0px));
+    padding-right:calc(58px + env(safe-area-inset-right,0px));
+    padding-bottom:calc(14px + env(safe-area-inset-bottom,0px));}
   .dpad{display:flex;gap:12px;pointer-events:auto;}
   .btn{width:68px;height:68px;border-radius:16px;background:rgba(20,20,20,.5);
     border:2px solid rgba(243,239,230,.5);display:flex;align-items:center;justify-content:center;
@@ -119,14 +123,7 @@
 <div id="wrap"><div id="stage">
   <canvas id="game"></canvas>
 
-  <button id="fsBtn" aria-label="Enter full screen">
-    <svg id="fsIcon" viewBox="0 0 24 24">
-      <polyline points="4,9 4,4 9,4"></polyline><polyline points="15,4 20,4 20,9"></polyline>
-      <polyline points="20,15 20,20 15,20"></polyline><polyline points="9,20 4,20 4,15"></polyline>
-    </svg>
-  </button>
-  <div id="fsHint"></div>
-  <div id="vtag">v1.7</div>
+  <div id="vtag">v1.8</div>
   <div id="errbar"></div>
 
   <div id="hud">
@@ -152,9 +149,19 @@
     <button id="startBtn">START</button>
     <button id="installBtn" hidden>ADD TO HOME SCREEN</button>
     <div id="iosTip" hidden></div>
-    <div id="build">BUILD 1.7 &middot; <span id="jsflag">JS NOT RUNNING</span></div>
+    <div id="build">BUILD 1.8 &middot; <span id="jsflag">JS NOT RUNNING</span></div>
   </div>
 
+
+  <!-- Math gate. Sibling of #msg, never inside it: showMsg() reaches for the
+       first <button> and indexes the <p>s in #msg, so buttons in there would
+       silently hijack START. -->
+  <div id="math" class="hidden">
+    <div id="mathTitle">SOLVE TO PLAY</div>
+    <div id="mathQ"></div>
+    <div id="mathChoices"></div>
+    <div id="mathMsg"></div>
+  </div>
   <div id="controls">
     <div class="dpad"><div class="btn" id="leftBtn">◀</div><div class="btn" id="rightBtn">▶</div></div>
     <div id="jumpBtn">JUMP</div>
@@ -272,28 +279,37 @@ window.addEventListener('orientationchange',()=>setTimeout(resize,150));
 
 /* ================= LEVEL DATA ================= */
 const WORLD=6600;
-const GRAVITY=0.66, MOVE=4.0, JUMP_V=13.2, JUMP_HI=16.4;
+// JUMP_HI is JUMP_V * sqrt(1.5): jump HEIGHT goes as v squared, so 1.5x higher
+// means 1.22x the launch velocity, not 1.5x.
+const GRAVITY=0.66, MOVE=4.0, JUMP_V=13.2, JUMP_HI=16.2;
+// Player sizes. Big is a true 2x on both axes.
+const P_W=34, P_H=50, P_BIG_W=68, P_BIG_H=100;
 
 // Main Street storefronts. hA = awning height above sidewalk (awning top = platform)
+//
+// Names are a fixed list of real West businesses supplied by the owner. Do NOT
+// invent new ones — repeat from this list instead if more buildings get added.
+// `sub` is deliberately empty everywhere: these are real businesses and made-up
+// taglines under their names would be putting words in their mouths.
 const BUILDINGS=[
- {x:380 ,w:230,h:225,name:"CZECH AMERICA"   ,sub:"RESTAURANT" ,face:"#E8DCC2",trim:"#CC0022",hA:100,style:"brick"},
- {x:670 ,w:200,h:198,name:"OLD CORNER DRUG" ,sub:"SODA FOUNTAIN",face:"#CFE3E0",trim:"#1E6F63",hA:114,style:"brick"},
- {x:945 ,w:195,h:242,name:"WEST BAKERY"     ,sub:"KOLACHES"   ,face:"#F0D9A8",trim:"#B4611F",hA:96 ,style:"brick"},
- {x:1240,w:240,h:216,name:"THE TIPSY LION"  ,sub:"TAVERN"     ,face:"#26314A",trim:"#E8B33C",hA:120,style:"brick"},
- {x:1570,w:225,h:268,name:"WEST STATE BANK" ,sub:"EST. 1901"  ,face:"#D9D6CD",trim:"#7A7669",hA:106,style:"stone"},
- {x:1890,w:210,h:202,name:"FILLING STATION" ,sub:"RESTAURANT" ,face:"#E5E5E5",trim:"#CC0022",hA:118,style:"station"},
- {x:2270,w:200,h:228,name:"MAIN ST BARBER"  ,sub:""           ,face:"#E3E9F0",trim:"#1B4C8C",hA:100,style:"brick"},
- {x:2570,w:240,h:248,name:"TROJAN FEED &amp; SEED",sub:""     ,face:"#C9B48C",trim:"#5C4326",hA:116,style:"brick"},
- {x:2910,w:200,h:206,name:"WEST HARDWARE"   ,sub:""           ,face:"#D8C7B0",trim:"#8E3B1E",hA:108,style:"brick"},
- {x:3210,w:230,h:238,name:"SOKOL HALL"      ,sub:"1896"       ,face:"#EFE4D2",trim:"#C0392B",hA:98 ,style:"stone"},
- {x:3540,w:210,h:222,name:"WEST CINEMA"     ,sub:"NOW SHOWING",face:"#3A2C4A",trim:"#E8B33C",hA:118,style:"marquee"},
- {x:3860,w:245,h:258,name:"WESTFEST HALL"   ,sub:"POLKA NIGHT",face:"#E0E6D8",trim:"#2E7D5B",hA:104,style:"stone"},
- {x:4220,w:200,h:212,name:"TROJAN GYM"      ,sub:""           ,face:"#CFCFCF",trim:"#141414",hA:112,style:"brick"},
- {x:4540,w:220,h:232,name:"WEST POST OFFICE",sub:"76691"      ,face:"#D6CFC0",trim:"#1B4C8C",hA:100,style:"stone"},
- {x:4880,w:210,h:246,name:"MAIN ST DINER"   ,sub:"OPEN 24 HRS",face:"#E9EDEF",trim:"#CC0022",hA:116,style:"brick"},
- {x:5200,w:230,h:218,name:"WEST DEPOT"      ,sub:"RAILROAD"   ,face:"#B8763F",trim:"#4A2E17",hA:102,style:"depot"},
- {x:5530,w:200,h:236,name:"OLD CORNER DRUG" ,sub:"ANNEX"      ,face:"#CFE3E0",trim:"#1E6F63",hA:110,style:"brick"},
- {x:5850,w:245,h:252,name:"WEST TROJANS"    ,sub:"SPIRIT SHOP",face:"#141414",trim:"#CC0022",hA:100,style:"brick"}
+ {x:380 ,w:230,h:225,name:"CZECH AMERICAN"  ,sub:"",face:"#E8DCC2",trim:"#CC0022",hA:100,style:"brick"},
+ {x:670 ,w:200,h:198,name:"OLD CORNER DRUG" ,sub:"",face:"#CFE3E0",trim:"#1E6F63",hA:114,style:"brick"},
+ {x:945 ,w:195,h:242,name:"PIZZA HOUSE"     ,sub:"",face:"#F0D9A8",trim:"#B4611F",hA:96 ,style:"brick"},
+ {x:1240,w:240,h:216,name:"THE TIPSY LION"  ,sub:"",face:"#26314A",trim:"#E8B33C",hA:120,style:"brick"},
+ {x:1570,w:225,h:268,name:"POINTWEST BANK"  ,sub:"",face:"#D9D6CD",trim:"#7A7669",hA:106,style:"stone"},
+ {x:1890,w:210,h:202,name:"FILLIN STATION"  ,sub:"",face:"#E5E5E5",trim:"#CC0022",hA:118,style:"station"},
+ {x:2270,w:200,h:228,name:"EVELYN PAREYA CPA",sub:"",face:"#E3E9F0",trim:"#1B4C8C",hA:100,style:"brick"},
+ {x:2570,w:240,h:248,name:"WEST FURNITURE"  ,sub:"",face:"#C9B48C",trim:"#5C4326",hA:116,style:"brick"},
+ {x:2910,w:200,h:206,name:"WEST HARDWARE"   ,sub:"",face:"#D8C7B0",trim:"#8E3B1E",hA:108,style:"brick"},
+ {x:3210,w:230,h:238,name:"WEST VFW"        ,sub:"",face:"#EFE4D2",trim:"#C0392B",hA:98 ,style:"stone"},
+ {x:3540,w:210,h:222,name:"WEST NEWS"       ,sub:"",face:"#3A2C4A",trim:"#E8B33C",hA:118,style:"marquee"},
+ {x:3860,w:245,h:258,name:"JUDGE PAREYA PCT 3",sub:"",face:"#E0E6D8",trim:"#2E7D5B",hA:104,style:"stone"},
+ {x:4220,w:200,h:212,name:"GUARDIAN PAYMENT SERVICES",sub:"",face:"#CFCFCF",trim:"#141414",hA:112,style:"brick"},
+ {x:4540,w:220,h:232,name:"KITCHEN GUARD"   ,sub:"",face:"#D6CFC0",trim:"#1B4C8C",hA:100,style:"stone"},
+ {x:4880,w:210,h:246,name:"WOLF'S BAR"      ,sub:"",face:"#E9EDEF",trim:"#CC0022",hA:116,style:"brick"},
+ {x:5200,w:230,h:218,name:"MYNAR'S BAR"     ,sub:"",face:"#B8763F",trim:"#4A2E17",hA:102,style:"depot"},
+ {x:5530,w:200,h:236,name:"SHOPPE 826"      ,sub:"",face:"#CFE3E0",trim:"#1E6F63",hA:110,style:"brick"},
+ {x:5850,w:245,h:252,name:"THE TIPSY LION"  ,sub:"",face:"#141414",trim:"#CC0022",hA:100,style:"brick"}
 ];
 
 // one-way platforms {x,w,hA,th,kind}
@@ -322,9 +338,12 @@ function seedFruit(){
   const spots=[];
   // arcs over each pit
   PITS.forEach(p=>{ for(let i=0;i<3;i++) spots.push([p.x+p.w*(i+0.5)/3, 108+Math.sin((i+1)/4*Math.PI)*46]); });
-  // above awnings
-  PLATS.filter(p=>p.kind==='awning').forEach((p,i)=>{
-    spots.push([p.x+p.w*0.32, p.hA+40]); spots.push([p.x+p.w*0.68, p.hA+40]);
+  // Above each awning, but clear of the sign band. The band runs from h-52
+  // to h-22 above ground, so a flat hA+40 dropped fruit straight across the
+  // shop name on the shorter buildings.
+  PLATS.filter(p=>p.kind==='awning').forEach(p=>{
+    const fy=Math.min(p.hA+30, (p.b?p.b.h:p.hA+40)-60);
+    spots.push([p.x+p.w*0.32, fy]); spots.push([p.x+p.w*0.68, fy]);
   });
   // ledge rewards
   PLATS.filter(p=>p.kind==='ledge').forEach(p=>{ spots.push([p.x+p.w*0.5, p.hA+38]); });
@@ -335,9 +354,9 @@ function seedFruit(){
   });
 }
 
-// power-ups: kolache(grow) star(invincible) boots(highjump)
+// power-ups: kolache(invincible 6s) boots(1.5x jump height 6s) star(2x size, until hit)
 const POWERS=[
- {x:700 ,hA:150,kind:'kolache',taken:false},
+ {x:700 ,hA:126,kind:'kolache',taken:false},
  {x:1660,hA:44 ,kind:'boots'  ,taken:false},
  {x:2620,hA:44 ,kind:'star'   ,taken:false},
  {x:3300,hA:140,kind:'kolache',taken:false},
@@ -367,12 +386,18 @@ function seedEnemies(){
     w:e[2]==='snake'?34:38,h:e[2]==='snake'?32:26,spin:0}));
 }
 
-const CHECKPOINTS=[{x:2230,hit:false},{x:4160,hit:false}];
+// Both of these used to sit INSIDE a pit (2180-2260 and 4145-4235), so every
+// respawn dropped the player straight back into the lava. Moved past each pit.
+const CHECKPOINTS=[{x:2300,hit:false},{x:4270,hit:false}];
 const GOAL_X=WORLD-150;
 
 /* ================= STATE ================= */
-const P={x:70,y:0,w:34,h:50,vx:0,vy:0,onGround:false,face:1,big:false,inv:0,invuln:0,hi:0,coyote:0,jumpHeld:false,anim:0};
+const P={x:70,y:0,w:P_W,h:P_H,vx:0,vy:0,onGround:false,face:1,big:false,inv:0,invuln:0,hi:0,coyote:0,jumpHeld:false,anim:0,
+  tf:0,        // power-up transform freeze, in frames
+  tfPrevH:P_H  // height before the transform, for the size flicker
+};
 let camX=0, score=0, fruitGot=0, lives=3, state='ready', spawnX=70, parts=[], pops=[];
+let dieT=0;   // death-pause countdown, frames
 let train=null, trainTimer=280, clouds=[];
 
 for(let i=0;i<9;i++) clouds.push({x:Math.random()*2000,y:30+Math.random()*90,s:.5+Math.random()*.6,sp:.12+Math.random()*.18});
@@ -380,8 +405,9 @@ for(let i=0;i<9;i++) clouds.push({x:Math.random()*2000,y:30+Math.random()*90,s:.
 function overPit(x){ for(const p of PITS){ if(x>p.x && x<p.x+p.w) return true; } return false; }
 
 function reset(full){
-  P.x=spawnX; P.y=GROUND-P.h; P.vx=0; P.vy=0; P.onGround=true; P.face=1;
-  P.big=false; P.inv=0; P.invuln=60; P.hi=0; P.anim=0;
+  P.x=safeSpawn(spawnX); P.y=GROUND-P.h; P.vx=0; P.vy=0; P.onGround=true; P.face=1;
+  P.big=false; P.w=P_W; P.h=P_H; P.inv=0; P.invuln=60; P.hi=0; P.anim=0; P.tf=0; dieT=0;
+  P.y=GROUND-P.h;
   if(full){
     score=0; fruitGot=0; lives=3; spawnX=70; P.x=70; camX=0;
     seedFruit(); seedEnemies(); POWERS.forEach(p=>p.taken=false);
@@ -458,107 +484,91 @@ addEventListener('keyup',e=>{
 });
 const sBtn=document.getElementById('startBtn');
 function startPress(e){ if(e)e.preventDefault(); try{ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); AC.resume(); }catch(err){}
-  if(state==='win'||state==='over'||state==='ready') reset(true); }
+  // Every start goes through the math gate first, including retries.
+  if(state==='win'||state==='over'||state==='ready') askMath(function(){ reset(true); }); }
 sBtn.addEventListener('touchstart',startPress,{passive:false});
 sBtn.addEventListener('click',startPress);
 
-/* ================= FULL SCREEN ================= */
-const fsBtn=document.getElementById('fsBtn'), fsIcon=document.getElementById('fsIcon'),
-      fsHint=document.getElementById('fsHint');
-let immersive=false, hintTimer=null;
-
-const ICON_EXPAND='<polyline points="4,9 4,4 9,4"></polyline><polyline points="15,4 20,4 20,9"></polyline>'+
-  '<polyline points="20,15 20,20 15,20"></polyline><polyline points="9,20 4,20 4,15"></polyline>';
-const ICON_SHRINK='<polyline points="9,4 9,9 4,9"></polyline><polyline points="20,9 15,9 15,4"></polyline>'+
-  '<polyline points="15,20 15,15 20,15"></polyline><polyline points="4,15 9,15 9,20"></polyline>';
-
-function fsElement(){ return document.fullscreenElement||document.webkitFullscreenElement||null; }
+/* ================= DISPLAY MODE ================= */
+// The full-screen button is gone as of 1.8. The game is installed to the Home
+// Screen and launches standalone, which is already edge to edge, so the button,
+// the Fullscreen API dance, the iOS-Chrome fallbacks and the double-tap gesture
+// were all dead weight. What remains is dropping the letterbox caps on #stage,
+// which only exist to keep the game a sane size inside a browser tab.
 function isStandalone(){
   return window.navigator.standalone===true ||
-    (window.matchMedia && window.matchMedia('(display-mode: fullscreen), (display-mode: standalone)').matches);
+    (window.matchMedia && window.matchMedia(
+      '(display-mode: fullscreen), (display-mode: standalone), (display-mode: minimal-ui)').matches);
 }
-function hint(msg){
-  fsHint.textContent=msg; fsHint.classList.add('show');
-  clearTimeout(hintTimer);
-  hintTimer=setTimeout(()=>fsHint.classList.remove('show'),5200);
-}
-function setImmersive(on){
-  immersive=on;
-  document.body.classList.toggle('immersive',on);
-  fsIcon.innerHTML = on?ICON_SHRINK:ICON_EXPAND;
-  fsBtn.setAttribute('aria-label', on?'Exit full screen':'Enter full screen');
-  // give layout a beat to settle, then re-measure the canvas
+if(isStandalone()){
+  document.body.classList.add('immersive');
   applyViewportHeight();
   setTimeout(queueResize,60); setTimeout(queueResize,340);
 }
 
-function enterFullscreen(){
-  const el=stage;
-  const req=el.requestFullscreen||el.webkitRequestFullscreen||el.webkitRequestFullScreen;
-  const iosChrome=/CriOS/i.test(navigator.userAgent);
-  if(req && !iosChrome){
-    try{
-      const r=req.call(el);
-      if(r&&typeof r.then==='function'){
-        r.then(()=>{ setImmersive(true); lockLandscape(); })
-         .catch(()=>{ setImmersive(true); hint('Filling the window instead — this frame blocks true full screen.'); });
-        return;
-      }
-      setImmersive(true); lockLandscape(); return;
-    }catch(e){}
-  }
-  // Chrome on iOS has no Fullscreen API at all, and can't install to the home
-  // screen either. Expand in-page and point at the route that actually works.
-  setImmersive(true);
-  if(iosChrome){
-    hint('Chrome on iOS can\u2019t go truly full screen. Open this page in Safari, then Share \u2192 Add to Home Screen.');
-  } else if(!isStandalone()){
-    hint('Full screen in this frame. For edge-to-edge on iPad: Share \u2192 Add to Home Screen, then launch from the icon.');
-  }
-}
-function exitFullscreen(){
-  const ex=document.exitFullscreen||document.webkitExitFullscreen||document.webkitCancelFullScreen;
-  if(fsElement()&&ex){ try{ ex.call(document); }catch(e){} }
-  setImmersive(false);
-}
-function lockLandscape(){
-  try{ if(screen.orientation&&screen.orientation.lock) screen.orientation.lock('landscape').catch(()=>{}); }catch(e){}
-}
-function toggleFs(e){
-  if(e){ e.preventDefault(); e.stopPropagation(); }
-  if(immersive||fsElement()) exitFullscreen(); else enterFullscreen();
-}
-fsBtn.addEventListener('touchstart',toggleFs,{passive:false});
-fsBtn.addEventListener('click',toggleFs);
+/* ================= MATH GATE ================= */
+// This game is aimed at 5-8 year olds, so every start and every respawn is
+// gated behind one single-digit addition problem. Answers are buttons rather
+// than a text field on purpose: a numeric keyboard on an iPad covers half the
+// screen and the child loses the game behind it.
+const mathEl=document.getElementById('math'), mathQ=document.getElementById('mathQ'),
+      mathChoices=document.getElementById('mathChoices'), mathMsg=document.getElementById('mathMsg');
+let mathAnswer=0, mathThen=null;
 
-// Backup gesture: double-tap the sky. If browser chrome ever clips the button,
-// there is still a way in.
-let lastTap=0;
-canvas.addEventListener('touchend',function(e){
-  const t=Date.now();
-  if(t-lastTap<320 && state!=='play'){ toggleFs(e); lastTap=0; } else lastTap=t;
-},{passive:false});
+function askMath(then){
+  mathThen=then;
+  const a=1+Math.floor(Math.random()*9), b=1+Math.floor(Math.random()*9);
+  mathAnswer=a+b;
+  mathQ.textContent=a+' + '+b+' = ?';
+  mathMsg.textContent='';
+  // Three choices: the answer plus two near misses. Near misses rather than
+  // random numbers so it cannot be solved by picking the only plausible one.
+  const opts=[mathAnswer];
+  let guard=0;
+  while(opts.length<3 && guard++<80){
+    const d=mathAnswer+(Math.floor(Math.random()*7)-3);
+    if(d>0 && opts.indexOf(d)<0) opts.push(d);
+  }
+  for(let i=opts.length-1;i>0;i--){            // Fisher-Yates
+    const j=Math.floor(Math.random()*(i+1)); const t=opts[i]; opts[i]=opts[j]; opts[j]=t;
+  }
+  mathChoices.innerHTML='';
+  opts.forEach(function(v){
+    const btn=document.createElement('button');
+    btn.type='button'; btn.textContent=v;
+    const pick=function(e){ if(e) e.preventDefault(); mathPick(v); };
+    btn.addEventListener('touchstart',pick,{passive:false});
+    btn.addEventListener('click',pick);
+    mathChoices.appendChild(btn);
+  });
+  state='math';
+  msgEl.classList.add('hidden');
+  mathEl.classList.remove('hidden');
+}
 
-// If the button somehow renders with no size, fall back to a plain text control.
-setTimeout(function(){
-  try{
-    const r=fsBtn.getBoundingClientRect();
-    if(r.width<8||r.height<8){
-      fsBtn.style.cssText+=';width:auto;height:auto;padding:8px 12px;font:800 12px sans-serif;color:#F3EFE6;';
-      fsBtn.textContent='FULL';
-    }
-  }catch(e){}
-},400);
-['fullscreenchange','webkitfullscreenchange'].forEach(ev=>{
-  document.addEventListener(ev,()=>{ if(!fsElement()&&immersive&&!document.body.classList.contains('forced')) setImmersive(false); });
-});
-addEventListener('keydown',e=>{ if(e.key==='f'||e.key==='F') toggleFs(); });
-if(isStandalone()) setImmersive(true);
+function mathPick(v){
+  if(v===mathAnswer){
+    mathEl.classList.add('hidden');
+    chirp(600,1200,.18);
+    const t=mathThen; mathThen=null;
+    if(t) t();
+  } else {
+    // A wrong answer costs another go and nothing else. Taking a life for a
+    // wrong sum is not what this gate is for.
+    mathMsg.textContent='Not quite \u2014 try again!';
+    beep(200,.18,'square',.05);
+  }
+}
 
 /* ================= UPDATE ================= */
 function update(){
   updateBackground();
+  // Death pause: hold the frame the player died on so they can see what got
+  // them, then hand off to afterDeath().
+  if(state==='dying'){ if(--dieT<=0) afterDeath(); return; }
   if(state!=='play') return;
+  // Power-up transform: everything holds still while the Trojan changes.
+  if(P.tf>0){ P.tf--; return; }
   P.anim++;
 
   // horizontal
@@ -600,8 +610,9 @@ function update(){
   P.onGround=landed;
   P.coyote = landed?7:Math.max(0,P.coyote-1);
 
-  // fell in pit
-  if(P.y>GROUND+240){ hurt(true); return; }
+  // Hit the lava. Fires at the pool surface rather than 240px down, so the
+  // player is still on screen when the death pause freezes the frame.
+  if(P.y+P.h>GROUND+LAVA_DROP+6){ hurt(true); return; }
 
   // timers
   if(P.inv>0){P.inv--; if(P.inv===0)clearPw();}
@@ -673,16 +684,28 @@ function update(){
   if(pops.length>24) pops.splice(0,pops.length-24);
 }
 
+// Power-ups, redefined in 1.8:
+//   Kolache      -> invincible for 6s
+//   Cowboy Boots -> 1.5x jump HEIGHT for 6s
+//   Lone Star    -> 2x size, no timer, held until a bad guy touches you
+const PW_SECS=6*60;
+
+// Mario-style transform: freeze everything for a beat and flicker the character
+// between its old and new size, so a power-up reads as an event rather than the
+// player silently changing shape mid-stride.
+function startTransform(){ P.tfPrevH=P.h; P.tf=42; }
+
 function grab(kind,x,y){
+  startTransform();
   if(kind==='kolache'){
-    if(!P.big){ P.big=true; P.w=42; P.h=62; P.y-=12; }
-    score+=500; pop(x,y,'BIG TROJAN'); chirp(300,760,.22);
+    P.inv=PW_SECS; score+=500; pop(x,y,'INVINCIBLE'); chirp(500,1200,.3);
+    setPw('KOLACHE \u2014 INVINCIBLE',PW_SECS);
   } else if(kind==='star'){
-    P.inv=560; score+=500; pop(x,y,'INVINCIBLE'); chirp(500,1200,.3);
-    setPw('LONE STAR — INVINCIBLE',560);
+    if(!P.big){ P.big=true; P.w=P_BIG_W; P.h=P_BIG_H; P.y-=(P_BIG_H-P_H); }
+    score+=500; pop(x,y,'BIG TROJAN'); chirp(300,760,.22);
   } else {
-    P.hi=680; score+=500; pop(x,y,'HIGH JUMP'); chirp(400,1000,.25);
-    setPw('SPRING BOOTS — HIGH JUMP',680);
+    P.hi=PW_SECS; score+=500; pop(x,y,'HIGH JUMP'); chirp(400,1000,.25);
+    setPw('COWBOY BOOTS \u2014 HIGH JUMP',PW_SECS);
   }
   puff(x,y,'#E8B33C');
 }
@@ -694,17 +717,35 @@ function updatePw(){
 }
 function clearPw(){ if(P.inv<=0&&P.hi<=0) pwEl.style.display='none'; }
 
+// A checkpoint that lands inside a pit is an instant death loop: respawn, fall,
+// respawn. Nudge clear of any pit rather than trusting the checkpoint data.
+function safeSpawn(x){
+  for(const p of PITS){ if(x>p.x-30 && x<p.x+p.w+30) return p.x+p.w+46; }
+  return x;
+}
+
 function hurt(pit){
   if(!pit && P.big){
-    P.big=false; P.w=34; P.h=50; P.invuln=110; puff(P.x,P.y+20,'#F0D9A8'); beep(200,.18,'square',.05);
+    P.big=false; P.w=P_W; P.h=P_H; P.invuln=110;
+    puff(P.x,P.y+20,'#F0D9A8'); beep(200,.18,'square',.05);
     return;
   }
-  lives--; syncHUD(); beep(160,.35,'sawtooth',.06);
+  // Freeze on the spot for a second before respawning. Young players need to
+  // see what actually killed them; an instant cut to the checkpoint teaches
+  // them nothing.
+  state='dying'; dieT=60;
+  beep(160,.35,'sawtooth',.06);
+  puff(P.x,P.y+P.h*0.5,'#CC0022');
+}
+function afterDeath(){
+  lives--; syncHUD();
   if(lives<=0){
     state='over';
-    showMsg('GAME OVER','MAIN STREET · WEST, TEXAS',
-      ['Score '+score+' · Fruit '+fruitGot+'/'+fruit.length,'Tap below to start a fresh run.'],'TRY AGAIN');
-  } else { reset(false); }
+    showMsg('GAME OVER','MAIN STREET \u00b7 WEST, TEXAS',
+      ['Score '+score+' \u00b7 Fruit '+fruitGot+'/'+fruit.length,'Tap below to start a fresh run.'],'TRY AGAIN');
+  } else {
+    askMath(function(){ reset(false); });
+  }
 }
 
 function puff(x,y,c){ for(let i=0;i<9;i++) parts.push({x,y,vx:(Math.random()-.5)*4.4,vy:-(Math.random()*3+.6),life:22+Math.random()*10,c}); }
@@ -1146,10 +1187,18 @@ function drawFruit(kind,x,y){
 }
 
 function drawPower(kind,x,y){
-  ctx.save(); ctx.translate(x,y);
-  const glow=0.5+0.5*Math.sin(Date.now()/180);
-  ctx.globalAlpha=0.20+glow*0.18; ctx.fillStyle='#FFE9A8';
-  ctx.beginPath(); ctx.arc(0,0,17+glow*4,0,6.3); ctx.fill(); ctx.globalAlpha=1;
+  // Blink hard and bob. These are the most important pickups on screen for a
+  // young player, and the old static glow did not read as "come get me".
+  const t=Date.now();
+  const blink=0.55+0.45*Math.sin(t/110);
+  const glow=0.5+0.5*Math.sin(t/180);
+  ctx.save(); ctx.translate(x,Math.sin(t/320)*3.5);
+  ctx.translate(0,y);
+  ctx.globalAlpha=(0.20+glow*0.30)*blink; ctx.fillStyle='#FFE9A8';
+  ctx.beginPath(); ctx.arc(0,0,17+glow*7,0,6.3); ctx.fill();
+  ctx.globalAlpha=0.55*blink; ctx.strokeStyle='#FFF3C4'; ctx.lineWidth=2;
+  ctx.beginPath(); ctx.arc(0,0,21+glow*8,0,6.3); ctx.stroke();
+  ctx.globalAlpha=0.62+0.38*blink;
   if(kind==='kolache'){
     ctx.fillStyle='#E8C077'; ctx.beginPath(); ctx.ellipse(0,0,15,12,0,0,6.3); ctx.fill();
     ctx.fillStyle='#C89A52'; ctx.beginPath(); ctx.ellipse(0,0,15,12,0,0,6.3); ctx.stroke===null;
@@ -1322,8 +1371,12 @@ function drawGoal(x,gy){
 }
 
 function drawTrojan(){
-  const x=P.x, y=P.y, w=P.w, h=P.h, f=P.face;
-  ctx.save(); ctx.translate(x,y+h);
+  const x=P.x, y=P.y, w=P.w, f=P.face;
+  // Power-up transform: flicker between the old and the new size. Feet stay
+  // planted because we translate to the real bottom (P.y+P.h) either way, so
+  // only the drawn height changes.
+  const h=(P.tf>0 && Math.floor(P.tf/4)%2===1) ? P.tfPrevH : P.h;
+  ctx.save(); ctx.translate(x,P.y+P.h);
   // invincible flash
   let alpha=1;
   if(P.inv>0) alpha = 0.55+0.45*Math.sin(Date.now()/60);
@@ -1423,6 +1476,16 @@ function drawTrojan(){
   ctx.globalAlpha=1;
   ctx.restore();
 
+  // Ring bursting outward through the transform, so the pickup lands as an
+  // event even for the two power-ups that do not change the Trojan's size.
+  if(P.tf>0){
+    ctx.save();
+    ctx.globalAlpha=Math.max(0,P.tf/42)*0.7;
+    ctx.strokeStyle='#E8B33C'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(P.x,P.y+P.h*0.5,P.h*0.55+(42-P.tf)*1.1,0,6.3); ctx.stroke();
+    ctx.restore();
+  }
+
   // sparkle trail when invincible
   if(P.inv>0 && P.anim%4===0){
     parts.push({x:P.x+(Math.random()-.5)*20,y:P.y+Math.random()*P.h,vx:(Math.random()-.5)*1.2,
@@ -1431,7 +1494,7 @@ function drawTrojan(){
 }
 
 /* ================= BOOT ================= */
-var VERSION='1.7';
+var VERSION='1.8';
 var errShown='', errCount=0;
 
 // The version is in the HTML already. This only flips the flag to prove the

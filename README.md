@@ -32,10 +32,10 @@ the one file. And bump all four of these together or the update won't be visible
 
 | Where | Looks like |
 |---|---|
-| `index.html` version tag | `<div id="vtag">v1.7</div>` |
-| `index.html` start screen | `BUILD 1.7 &middot;` |
-| `index.html` script | `var VERSION='1.7';` |
-| `sw.js` | `var CACHE = 'wtr-1.7';` |
+| `index.html` version tag | `<div id="vtag">v1.8</div>` |
+| `index.html` start screen | `BUILD 1.8 &middot;` |
+| `index.html` script | `var VERSION='1.8';` |
+| `sw.js` | `var CACHE = 'wtr-1.8';` |
 
 If the build number on screen doesn't change after a deploy, the `sw.js` `CACHE`
 line is what got missed. GitHub Pages also holds a CDN cache for about 10
@@ -45,7 +45,7 @@ minutes, so give it a moment before assuming something broke.
 
 **iPhone / iPad** — open <https://wleslielong.github.io/West-Trojan-Run/> in
 **Safari** (not Chrome; Chrome on iOS cannot do this), tap **Share**, then **Add
-to Home Screen**. It launches fullscreen with no browser bars. *Confirmed working
+to Home Screen**. It launches full-screen with no browser bars. *Confirmed working
 on iPad.*
 
 **Android** — open the same URL in Chrome. Tap **ADD TO HOME SCREEN** on the
@@ -56,13 +56,31 @@ Once installed it works with no signal.
 ## Controls
 
 Touch: ◀ ▶ to move, JUMP to hop, stomp enemies from above.
-Keyboard: arrow keys, space to jump, F for fullscreen.
+Keyboard: arrow keys, space to jump.
+
+
+## Math problems
+
+Built for ages 5-8. A single-digit addition problem appears after you press
+START, and again after every death. Three big buttons, no typing. A wrong answer
+just lets you try again — it never costs a life or a turn.
+
+## Power-ups
+
+| Pickup | What it does | How long |
+|---|---|---|
+| Kolache | Invincible | 6 seconds |
+| Cowboy Boots | Jump 1.5x higher | 6 seconds |
+| Lone Star | Grow to double size | Until a bad guy touches you |
+
+They blink and bob so they are easy to spot, and the Trojan does a flashing
+transform when you grab one.
 
 ## Is it working?
 
 Under the START button:
 
-- **BUILD 1.7 · JS OK** in green — good.
+- **BUILD 1.8 · JS OK** in green — good.
 - **JS NOT RUNNING** in red — the script died; the game won't respond.
 
 A red bar across the bottom means an error, and it says what. Tap to dismiss.
@@ -75,7 +93,7 @@ cached copy — add `?v=2` to the end of the URL (then `?v=3`, and so on).
 | File | What it is |
 |---|---|
 | `index.html` | The entire game |
-| `manifest.webmanifest` | App name, icon, and fullscreen settings |
+| `manifest.webmanifest` | App name, icon, and display settings |
 | `sw.js` | Makes it work offline |
 | `icon-*.png`, `apple-touch-icon.png` | App icons |
 | `tools/make-icons.ps1` | Regenerates those icons |

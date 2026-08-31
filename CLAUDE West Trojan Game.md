@@ -3,7 +3,7 @@
 A browser-based side-scrolling platformer set on Main Street in West, Texas,
 starring the West Trojan mascot. Built as a single self-contained HTML file.
 
-**Current version: BUILD 1.7** (see `index.html`, hardcoded in the markup)
+**Current version: BUILD 1.8** (see `index.html`, hardcoded in the markup)
 
 ---
 
@@ -27,7 +27,7 @@ plain 1.4 behaviour if they are missing:
 | File | Why it exists | Needed for |
 |---|---|---|
 | `index.html` | The entire game | Everything |
-| `manifest.webmanifest` | App name, icons, fullscreen, landscape | Android install |
+| `manifest.webmanifest` | App name, icons, display mode, landscape | Android install |
 | `sw.js` | Offline cache | Offline play, Android install prompt |
 | `icon-192.png` `icon-512.png` | Manifest icons | Android install |
 | `icon-maskable-512.png` | Android adaptive-icon safe zone | Android icon shape |
@@ -58,7 +58,8 @@ Rough layout of the script:
 | State | `P` (player), camera, score, lives |
 | Audio | WebAudio beeps; nodes disconnect on `onended` |
 | Input | Touch button bindings + keyboard fallback |
-| Fullscreen | Fullscreen API with in-page immersive fallback |
+| Display mode | Standalone check; drops the letterbox caps. No fullscreen button since 1.8 |
+| Math gate | `askMath()` / `mathPick()` — the addition problem between you and playing |
 | Update | Physics, collisions, enemies, pickups |
 | Draw | Layered: sky → far parallax → train → street/buildings → entities |
 | Boot | Error reporting, watchdog, render loop |
@@ -90,8 +91,9 @@ an earlier absolute-coordinate version broke on rotation.
 
 - **Player**: Trojan — black helmet, red plume crest, red tunic, cape, a round
   shield carrying a gold **W**, and a short sword in the front hand. 34x50 normal,
-  42x62 in the kolache form. All the art scales off `S = h/42`, so changing `P.h`
+  68x100 in the Lone Star form (a true 2x). All art scales off `S = h/42`, so `P.h`
   resizes the whole character; the 42 divisor is a reference, not the height.
+  Sizes live in `P_W` / `P_H` / `P_BIG_W` / `P_BIG_H` — do not hardcode them.
   The shield's W is drawn as text and survives the left-facing `scale(-1,1)`
   because a sans-serif W is horizontally symmetric.
 - **Enemies**: scorpions (slow patrol), rattlesnakes (faster), both stompable.
@@ -103,6 +105,11 @@ an earlier absolute-coordinate version broke on rotation.
   the shaft so the hazard reads from the sidewalk. `lavaGrad` is cached beside
   `skyGrad`/`pitGrad` — never build it per frame. The heat glow is drawn bands,
   not `shadowBlur`, which is banned here.
+- **Checkpoints and respawns**: `reset()` runs `spawnX` through `safeSpawn()`,
+  which nudges clear of any pit. Both original checkpoints sat INSIDE a pit
+  (2230 in 2180-2260, 4160 in 4145-4235), so every respawn dropped the player
+  straight back into the lava. They are now past each pit at 2300 and 4270, and
+  `safeSpawn` is the backstop so a future checkpoint cannot reintroduce it.
 - **West Trojans logo**: the **real school mark**, not a drawing of it. Source is
   `West Trojan - Red Black Logo.jpeg` in the project root;
   `tools/make-logo.ps1` crops it to the ink, snaps the JPEG's ringing noise back
@@ -125,11 +132,42 @@ an earlier absolute-coordinate version broke on rotation.
     weighted, and the W's centre peak fired a miter spike through the T. Don't
     go back to that; use the artwork.
 - **Fruit**: apple 100, banana 150, orange 200, strawberry 250, watermelon 400
-- **Power-ups**: Kolache (grow, absorb one hit), Lone Star (invincible ~9s),
-  Spring Boots (high jump ~11s)
-- **Storefronts**: Czech America, Old Corner Drug, The Tipsy Lion, West State Bank,
-  Filling Station, plus West Bakery, Sokol Hall, Westfest Hall, West Depot,
-  Trojan Feed & Seed, and others. Awnings double as platforms.
+- **Power-ups** (redefined in 1.8 — the old set was grow / invincible / high jump
+  attached to different pickups, so don't trust older notes):
+  | Pickup | Effect | Duration |
+  |---|---|---|
+  | Kolache | Invincible | 6s |
+  | Cowboy Boots | 1.5x jump **height** | 6s |
+  | Lone Star | 2x size (68x100) | until a bad guy touches you |
+  `JUMP_HI` is `JUMP_V * sqrt(1.5)`, not `* 1.5` — jump height goes as velocity
+  squared, so 1.5x higher is 1.22x the launch speed. Lava kills at any size:
+  `hurt(true)` skips the shrink branch on purpose.
+  They blink, pulse and bob rather than sitting still, and picking one up runs a
+  Mario-style transform — `P.tf` freezes the whole update loop for 42 frames
+  while the Trojan flickers between its old and new height and a gold ring
+  bursts outward. `drawTrojan` translates to the real bottom (`P.y+P.h`) so the
+  flicker grows from the feet instead of sliding the character.
+- **Math gate**: every start and every respawn is gated behind one single-digit
+  addition problem — the game is aimed at 5-8 year olds. Answers are three
+  buttons (correct plus two near misses), never a text field: a numeric keyboard
+  on an iPad covers the screen. A wrong answer costs another go and nothing
+  else. `askMath(then)` sets `state='math'` and fires `then` on the right
+  answer, so it composes with both `reset(true)` and `reset(false)`.
+- **Death pause**: dying sets `state='dying'` for 60 frames before anything
+  else happens, so a child can see what killed them. Falling in a pit triggers
+  at the lava surface (`GROUND+LAVA_DROP+6`) rather than 240px down, so the
+  Trojan is still on screen when the frame freezes.
+- **Storefronts**: the names are a **fixed list of real West businesses supplied
+  by the owner** and live in the `BUILDINGS` array. Do NOT invent new ones — if
+  more buildings get added, repeat from the list. `sub` is empty everywhere on
+  purpose: made-up taglines under a real business name put words in its mouth.
+  Current list: The Tipsy Lion, West Furniture, Evelyn Pareya CPA,
+  Judge Pareya Pct 3, Czech American, Old Corner Drug, Pizza House, Wolf's Bar,
+  Mynar's Bar, Pointwest Bank, West News, Fillin Station, West VFW,
+  West Hardware, Guardian Payment Services, Kitchen Guard, Shoppe 826.
+  Awnings double as platforms. Fruit above an awning is placed at
+  `min(hA+30, h-60)`, NOT a flat `hA+40` — the flat version dropped fruit and
+  power-ups straight across the shop name on the shorter buildings.
 - **Train**: background scenery only, no gameplay effect. Runs on tracks behind
   the storefronts at 0.55 parallax, visible through gaps, spawns every 10–15s
   in a random direction with a horn.
@@ -178,9 +216,9 @@ These were all real crashes on real devices. Do not undo them.
 8. **Size from `visualViewport`, not `100vh`.** `100vh` on iOS includes the area
    behind the URL bar, which pushed the JUMP button off screen.
 
-9. **Chrome on iOS has no Fullscreen API at all.** Detected via `CriOS`; it skips
-   the API and uses the in-page immersive fallback, and tells the user to open in
-   Safari. Chrome iOS also can't do Add to Home Screen as a standalone app.
+9. **Chrome on iOS cannot Add to Home Screen.** The install tip detects `CriOS`
+   and points at Safari instead. The Fullscreen API notes that used to live here
+   are gone with the button — see Display mode.
 
 ## Install & offline (added 1.5)
 
@@ -279,8 +317,7 @@ must be checked in **Safari on an actual iPad**, not just a desktop browser or a
 embedded preview — every bug in this project so far only appeared on device.
 
 Sanity check before shipping: confirm the flag reads `JS OK` in green, play for
-at least 60 seconds watching for the red error bar, rotate the iPad, and toggle
-fullscreen.
+at least 60 seconds watching for the red error bar, and rotate the iPad.
 
 Sixty seconds is not an arbitrary number. A train spawns every 10–15s and takes
 roughly another 12s to cross, so a shorter run can miss train-related bugs

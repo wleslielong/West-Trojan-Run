@@ -10,7 +10,7 @@
  * exactly like before. The cache is only a fallback for when the network is
  * gone. Bump CACHE on every release so old entries are purged.
  */
-var CACHE = 'wtr-1.7';
+var CACHE = 'wtr-1.8';
 
 var ASSETS = [
   './',
