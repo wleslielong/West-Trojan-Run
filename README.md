@@ -32,10 +32,10 @@ the one file. And bump all four of these together or the update won't be visible
 
 | Where | Looks like |
 |---|---|
-| `index.html` version tag | `<div id="vtag">v1.8</div>` |
-| `index.html` start screen | `BUILD 1.8 &middot;` |
-| `index.html` script | `var VERSION='1.8';` |
-| `sw.js` | `var CACHE = 'wtr-1.8';` |
+| `index.html` version tag | `<div id="vtag">v1.9</div>` |
+| `index.html` start screen | `BUILD 1.9 &middot;` |
+| `index.html` script | `var VERSION='1.9';` |
+| `sw.js` | `var CACHE = 'wtr-1.9';` |
 
 If the build number on screen doesn't change after a deploy, the `sw.js` `CACHE`
 line is what got missed. GitHub Pages also holds a CDN cache for about 10
@@ -80,7 +80,7 @@ transform when you grab one.
 
 Under the START button:
 
-- **BUILD 1.8 · JS OK** in green — good.
+- **BUILD 1.9 · JS OK** in green — good.
 - **JS NOT RUNNING** in red — the script died; the game won't respond.
 
 A red bar across the bottom means an error, and it says what. Tap to dismiss.

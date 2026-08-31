@@ -3,7 +3,7 @@
 A browser-based side-scrolling platformer set on Main Street in West, Texas,
 starring the West Trojan mascot. Built as a single self-contained HTML file.
 
-**Current version: BUILD 1.8** (see `index.html`, hardcoded in the markup)
+**Current version: BUILD 1.9** (see `index.html`, hardcoded in the markup)
 
 ---
 
@@ -182,6 +182,35 @@ an earlier absolute-coordinate version broke on rotation.
   building hid behind a single shopfront and only the flagpole showed.
 
 ---
+
+
+### Keeping shop names readable
+
+Everything on a building is drawn over the same facade, so several unrelated
+things kept ending up across the shop name. All of it is measured from one line:
+the sign band's **bottom edge at `h-52` above ground**.
+
+- **The band grows upward, never downward.** A name too long to read on one line
+  (`fs < 13`) wraps to two and the band becomes 44px instead of 30 — but
+  `signY = topY+52-bandH`, so the bottom stays put. Growing it downward would
+  silently push the sign back under the fruit. Only GUARDIAN PAYMENT SERVICES
+  wraps today.
+- **Awning fruit** sits at `min(hA+30, h-72)`. Not `h-52`: a fruit sprite is
+  about 14 tall, so clamping to the band edge itself still clipped it.
+- **Roof ledges** are drawn on top of the building bitmap, so a ledge across the
+  band hides the name behind a grey slab. Three of the five originally did
+  exactly that. They were moved **down**, not up, because clearing the band from
+  above put them outside jump range from the awning (max reach is
+  `awning hA + 132`).
+- **Pit fruit arcs** peak at 138. Pits butt up against the building in front of
+  them — the 2845 pit runs under West Hardware's frontage — so a taller arc put
+  fruit across the bottom of that sign.
+
+Hand-checking this does not work; two rounds of it still left five overlaps.
+There is a throwaway audit in the scratchpad that walks `BUILDINGS` against
+`PLATS`, `fruit` and `POWERS` and logs anything intersecting a band. Re-derive it
+and run it after touching any of these numbers — it caught every case that eyes
+and arithmetic missed.
 
 ## iOS constraints — read before optimizing anything
 

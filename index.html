@@ -123,7 +123,7 @@
 <div id="wrap"><div id="stage">
   <canvas id="game"></canvas>
 
-  <div id="vtag">v1.8</div>
+  <div id="vtag">v1.9</div>
   <div id="errbar"></div>
 
   <div id="hud">
@@ -149,7 +149,7 @@
     <button id="startBtn">START</button>
     <button id="installBtn" hidden>ADD TO HOME SCREEN</button>
     <div id="iosTip" hidden></div>
-    <div id="build">BUILD 1.8 &middot; <span id="jsflag">JS NOT RUNNING</span></div>
+    <div id="build">BUILD 1.9 &middot; <span id="jsflag">JS NOT RUNNING</span></div>
   </div>
 
 
@@ -317,8 +317,19 @@ const PLATS=[];
 BUILDINGS.forEach(b=>{
   PLATS.push({x:b.x-6, w:b.w+12, hA:b.hA, th:14, kind:'awning', b:b});
 });
-// upper roof ledges
-[[380,150,215],[1570,150,238],[2570,160,232],[3860,160,236],[5200,150,214]].forEach(v=>{
+// Upper roof ledges. hA is NOT free to pick: a ledge is drawn on top of the
+// building bitmap, so one sitting across the sign band (h-52 .. h-22 above
+// ground) hides the shop name behind a grey slab. Its fruit, at hA+38, has to
+// clear the band too. Three of these originally sat straight over the name.
+//   380  h225 band 173..203  ledge 203..215  -> above the band, kept
+//   1570 h268 band 216..246  ledge was 226..238, dead centre -> dropped to 156
+//   2570 h248 band 196..226  ledge was 220..232 -> dropped to 140
+//   3860 h258 band 206..236  ledge was 224..236, dead centre -> dropped to 148
+//   5200 h218 band 166..196  ledge 202..214  -> above the band, kept
+// The three that moved went DOWN rather than up because clearing the band from
+// above put them out of jump range from the awning below (max reach is
+// awning hA + 132).
+[[380,150,215],[1570,150,156],[2570,160,140],[3860,160,148],[5200,150,214]].forEach(v=>{
   PLATS.push({x:v[0]+30,w:v[1],hA:v[2],th:12,kind:'ledge'});
 });
 // street crates / benches
@@ -337,12 +348,15 @@ function seedFruit(){
   fruit=[];
   const spots=[];
   // arcs over each pit
-  PITS.forEach(p=>{ for(let i=0;i<3;i++) spots.push([p.x+p.w*(i+0.5)/3, 108+Math.sin((i+1)/4*Math.PI)*46]); });
-  // Above each awning, but clear of the sign band. The band runs from h-52
-  // to h-22 above ground, so a flat hA+40 dropped fruit straight across the
-  // shop name on the shorter buildings.
+  // Arc peaks at 138, not 154. Pits butt up against the building in front of
+  // them (the 2845 pit runs under West Hardware's frontage), so a taller arc
+  // put fruit across the bottom of that shop's sign band.
+  PITS.forEach(p=>{ for(let i=0;i<3;i++) spots.push([p.x+p.w*(i+0.5)/3, 100+Math.sin((i+1)/4*Math.PI)*38]); });
+  // Above each awning, but clear of the sign band. The band runs from h-52 to
+  // h-22 above ground and a fruit sprite is about 14 tall, so the ceiling is
+  // h-72, not h-52; clamping to the band edge itself still clipped the sign.
   PLATS.filter(p=>p.kind==='awning').forEach(p=>{
-    const fy=Math.min(p.hA+30, (p.b?p.b.h:p.hA+40)-60);
+    const fy=Math.min(p.hA+30, (p.b?p.b.h:p.hA+40)-72);
     spots.push([p.x+p.w*0.32, fy]); spots.push([p.x+p.w*0.68, fy]);
   });
   // ledge rewards
@@ -356,7 +370,7 @@ function seedFruit(){
 
 // power-ups: kolache(invincible 6s) boots(1.5x jump height 6s) star(2x size, until hit)
 const POWERS=[
- {x:700 ,hA:126,kind:'kolache',taken:false},
+ {x:700 ,hA:120,kind:'kolache',taken:false},
  {x:1660,hA:44 ,kind:'boots'  ,taken:false},
  {x:2620,hA:44 ,kind:'star'   ,taken:false},
  {x:3300,hA:140,kind:'kolache',taken:false},
@@ -1113,18 +1127,44 @@ function paintBuilding(b,c){
   // cornice
   c.fillStyle=b.trim; c.fillRect(b.x-6,topY-12,b.w+12,14);
   c.fillStyle='rgba(0,0,0,.18)'; c.fillRect(b.x-6,topY+2,b.w+12,4);
-  // sign band
-  const signY=topY+22;
-  c.fillStyle='rgba(20,20,20,.82)'; c.fillRect(b.x+10,signY,b.w-20,30);
-  c.fillStyle=b.trim; c.fillRect(b.x+10,signY,b.w-20,3);
-  c.textAlign='center'; c.fillStyle='#F6F2E8';
+  // Sign band. A name too long for one readable line wraps to two, rather than
+  // shrinking until nobody can read it — "GUARDIAN PAYMENT SERVICES" was down
+  // to 12px on a 200px shopfront.
+  //
+  // The band grows UPWARD: its BOTTOM edge stays pinned at topY+52. Every fruit
+  // and ledge clearance in this file is measured from that edge (h-52 above
+  // ground), so growing downward would silently put the sign back under them.
+  // There is room above — the cornice sits at topY-12..topY+2.
   const name=b.name.replace('&amp;','&');
   let fs=Math.min(16, (b.w-28)/(name.length*0.56));
+  let lines=[name];
+  if(fs<13){
+    const words=name.split(' ');
+    if(words.length>1){
+      let best=1, bestDiff=1e9;
+      for(let i=1;i<words.length;i++){
+        const d=Math.abs(words.slice(0,i).join(' ').length - words.slice(i).join(' ').length);
+        if(d<bestDiff){ bestDiff=d; best=i; }   // split closest to even halves
+      }
+      lines=[words.slice(0,best).join(' '), words.slice(best).join(' ')];
+      fs=Math.min(15, (b.w-28)/(Math.max(lines[0].length,lines[1].length)*0.56));
+    }
+  }
+  const bandH=(lines.length>1)?44:30;
+  const signY=topY+52-bandH;
+  c.fillStyle='rgba(20,20,20,.82)'; c.fillRect(b.x+10,signY,b.w-20,bandH);
+  c.fillStyle=b.trim; c.fillRect(b.x+10,signY,b.w-20,3);
+  c.textAlign='center'; c.fillStyle='#F6F2E8';
   c.font='bold '+fs.toFixed(1)+'px sans-serif';
-  c.fillText(name,b.x+b.w/2,signY+20);
+  if(lines.length>1){
+    c.fillText(lines[0],b.x+b.w/2,signY+20);
+    c.fillText(lines[1],b.x+b.w/2,signY+38);
+  } else {
+    c.fillText(lines[0],b.x+b.w/2,signY+20);
+  }
   if(b.sub){
     c.fillStyle='#C9C3B4'; c.font='bold 9px sans-serif';
-    c.fillText(b.sub,b.x+b.w/2,signY+43);
+    c.fillText(b.sub,b.x+b.w/2,topY+65);
   }
   // windows
   const wTop=signY+56, wH=Math.max(28, b.h-(wTop-topY)-b.hA-40);
@@ -1494,7 +1534,7 @@ function drawTrojan(){
 }
 
 /* ================= BOOT ================= */
-var VERSION='1.8';
+var VERSION='1.9';
 var errShown='', errCount=0;
 
 // The version is in the HTML already. This only flips the flag to prove the
