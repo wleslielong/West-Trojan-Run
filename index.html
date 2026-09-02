@@ -81,7 +81,9 @@
     display:flex;flex-direction:column;align-items:center;justify-content:center;
     background:rgba(10,10,14,.9);color:var(--bone);padding:20px;text-align:center;}
   #math.hidden{display:none;}
-  #mathTitle{font-size:13px;letter-spacing:2.4px;color:var(--gold);font-weight:800;margin-bottom:12px;}
+  #mathTitle{font-size:13px;letter-spacing:2.4px;color:var(--gold);font-weight:800;margin-bottom:10px;}
+  /* Emoji picture for the sight-word rounds. No image files, scales to any size. */
+  #mathPic{font-size:clamp(54px,13vw,94px);line-height:1;margin-bottom:2px;}
   #mathQ{font-size:clamp(40px,11vw,76px);font-weight:900;letter-spacing:4px;color:#fff;
     text-shadow:0 4px 0 rgba(0,0,0,.45);margin-bottom:22px;}
   #mathChoices{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;}
@@ -123,7 +125,7 @@
 <div id="wrap"><div id="stage">
   <canvas id="game"></canvas>
 
-  <div id="vtag">v1.9</div>
+  <div id="vtag">v2.0</div>
   <div id="errbar"></div>
 
   <div id="hud">
@@ -149,7 +151,7 @@
     <button id="startBtn">START</button>
     <button id="installBtn" hidden>ADD TO HOME SCREEN</button>
     <div id="iosTip" hidden></div>
-    <div id="build">BUILD 1.9 &middot; <span id="jsflag">JS NOT RUNNING</span></div>
+    <div id="build">BUILD 2.0 &middot; <span id="jsflag">JS NOT RUNNING</span></div>
   </div>
 
 
@@ -158,6 +160,7 @@
        silently hijack START. -->
   <div id="math" class="hidden">
     <div id="mathTitle">SOLVE TO PLAY</div>
+    <div id="mathPic" hidden></div>
     <div id="mathQ"></div>
     <div id="mathChoices"></div>
     <div id="mathMsg"></div>
@@ -520,29 +523,35 @@ if(isStandalone()){
   setTimeout(queueResize,60); setTimeout(queueResize,340);
 }
 
-/* ================= MATH GATE ================= */
-// This game is aimed at 5-8 year olds, so every start and every respawn is
-// gated behind one single-digit addition problem. Answers are buttons rather
-// than a text field on purpose: a numeric keyboard on an iPad covers half the
-// screen and the child loses the game behind it.
+/* ================= LEARNING GATE ================= */
+// Aimed at 5-8 year olds: every start and every respawn is gated behind one
+// question, alternating at random between an addition sum and a fill-in-the-
+// missing-letter sight word. Answers are always buttons, never a text field —
+// a keyboard on an iPad covers half the screen and the child loses the game
+// behind it.
 const mathEl=document.getElementById('math'), mathQ=document.getElementById('mathQ'),
-      mathChoices=document.getElementById('mathChoices'), mathMsg=document.getElementById('mathMsg');
-let mathAnswer=0, mathThen=null;
+      mathChoices=document.getElementById('mathChoices'), mathMsg=document.getElementById('mathMsg'),
+      mathTitle=document.getElementById('mathTitle'), mathPic=document.getElementById('mathPic');
+let mathAnswer='', mathThen=null;
 
-function askMath(then){
-  mathThen=then;
-  const a=1+Math.floor(Math.random()*9), b=1+Math.floor(Math.random()*9);
-  mathAnswer=a+b;
-  mathQ.textContent=a+' + '+b+' = ?';
-  mathMsg.textContent='';
-  // Three choices: the answer plus two near misses. Near misses rather than
-  // random numbers so it cannot be solved by picking the only plausible one.
-  const opts=[mathAnswer];
-  let guard=0;
-  while(opts.length<3 && guard++<80){
-    const d=mathAnswer+(Math.floor(Math.random()*7)-3);
-    if(d>0 && opts.indexOf(d)<0) opts.push(d);
-  }
+// [word, picture, index of the missing letter, two wrong letters]
+// Every one is a missing VOWEL, which is the phonics skill this age is drilling.
+// Pictures are emoji rather than drawings: no extra files, and they render at
+// any size, which keeps the single-file rule intact.
+const SIGHT=[
+  ['DOG','\uD83D\uDC15',1,'A','U'], ['CAT','\uD83D\uDC08',1,'E','O'],
+  ['SUN','\u2600\uFE0F',1,'A','O'], ['PIG','\uD83D\uDC37',1,'A','O'],
+  ['BUS','\uD83D\uDE8C',1,'A','I'], ['HAT','\uD83C\uDFA9',1,'O','U'],
+  ['CUP','\uD83E\uDD64',1,'A','O'], ['BED','\uD83D\uDECF\uFE0F',1,'A','O'],
+  ['FOX','\uD83E\uDD8A',1,'A','I'], ['BEE','\uD83D\uDC1D',1,'A','O'],
+  ['DUCK','\uD83E\uDD86',1,'A','O'], ['FISH','\uD83D\uDC1F',1,'A','O'],
+  ['FROG','\uD83D\uDC38',2,'A','U'], ['STAR','\u2B50',2,'E','O'],
+  ['MOON','\uD83C\uDF19',1,'A','E'], ['CAKE','\uD83C\uDF70',1,'I','O'],
+  ['BOAT','\u26F5',1,'A','E'],       ['TREE','\uD83C\uDF33',2,'A','O']
+];
+
+function gateChoices(opts,correct){
+  mathAnswer=String(correct);
   for(let i=opts.length-1;i>0;i--){            // Fisher-Yates
     const j=Math.floor(Math.random()*(i+1)); const t=opts[i]; opts[i]=opts[j]; opts[j]=t;
   }
@@ -555,13 +564,51 @@ function askMath(then){
     btn.addEventListener('click',pick);
     mathChoices.appendChild(btn);
   });
+}
+
+function buildSum(){
+  // The sum never exceeds 10. Both addends stay at least 1, so the smallest
+  // problem is 1 + 1 and the largest totals 10.
+  const total=2+Math.floor(Math.random()*9);        // 2..10
+  const a=1+Math.floor(Math.random()*(total-1));    // 1..total-1
+  mathTitle.textContent='SOLVE TO PLAY';
+  mathPic.hidden=true; mathPic.textContent='';
+  mathQ.textContent=a+' + '+(total-a)+' = ?';
+  // Near misses rather than random numbers, so it cannot be solved by spotting
+  // the only plausible answer. Distractors are capped at 10 too, so "never pick
+  // the big one" is not a shortcut past actually adding.
+  const opts=[total];
+  let guard=0;
+  while(opts.length<3 && guard++<80){
+    const d=total+(Math.floor(Math.random()*7)-3);
+    if(d>0 && d<=10 && opts.indexOf(d)<0) opts.push(d);
+  }
+  gateChoices(opts,total);
+}
+
+function buildWord(){
+  const w=SIGHT[Math.floor(Math.random()*SIGHT.length)];
+  const word=w[0], idx=w[2], correct=word.charAt(idx);
+  mathTitle.textContent='FINISH THE WORD';
+  mathPic.textContent=w[1]; mathPic.hidden=false;
+  // Spaced out so the blank reads as a gap rather than an underscore in a word.
+  let shown='';
+  for(let i=0;i<word.length;i++) shown+=(i?' ':'')+(i===idx?'_':word.charAt(i));
+  mathQ.textContent=shown;
+  gateChoices([correct,w[3],w[4]],correct);
+}
+
+function askMath(then){
+  mathThen=then;
+  mathMsg.textContent='';
+  if(Math.random()<0.5) buildSum(); else buildWord();
   state='math';
   msgEl.classList.add('hidden');
   mathEl.classList.remove('hidden');
 }
 
 function mathPick(v){
-  if(v===mathAnswer){
+  if(String(v)===mathAnswer){
     mathEl.classList.add('hidden');
     chirp(600,1200,.18);
     const t=mathThen; mathThen=null;
@@ -1534,7 +1581,7 @@ function drawTrojan(){
 }
 
 /* ================= BOOT ================= */
-var VERSION='1.9';
+var VERSION='2.0';
 var errShown='', errCount=0;
 
 // The version is in the HTML already. This only flips the flag to prove the

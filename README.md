@@ -32,10 +32,10 @@ the one file. And bump all four of these together or the update won't be visible
 
 | Where | Looks like |
 |---|---|
-| `index.html` version tag | `<div id="vtag">v1.9</div>` |
-| `index.html` start screen | `BUILD 1.9 &middot;` |
-| `index.html` script | `var VERSION='1.9';` |
-| `sw.js` | `var CACHE = 'wtr-1.9';` |
+| `index.html` version tag | `<div id="vtag">v2.0</div>` |
+| `index.html` start screen | `BUILD 2.0 &middot;` |
+| `index.html` script | `var VERSION='2.0';` |
+| `sw.js` | `var CACHE = 'wtr-2.0';` |
 
 If the build number on screen doesn't change after a deploy, the `sw.js` `CACHE`
 line is what got missed. GitHub Pages also holds a CDN cache for about 10
@@ -59,11 +59,17 @@ Touch: ◀ ▶ to move, JUMP to hop, stomp enemies from above.
 Keyboard: arrow keys, space to jump.
 
 
-## Math problems
+## Questions between turns
 
-Built for ages 5-8. A single-digit addition problem appears after you press
-START, and again after every death. Three big buttons, no typing. A wrong answer
-just lets you try again — it never costs a life or a turn.
+Built for ages 5-8. A question appears after you press START and again after
+every death, switching at random between two kinds:
+
+- **A sum** — the two numbers never add up to more than 10.
+- **A sight word** — a picture and a word with one letter missing, like a bus
+  and `B _ S`, and you pick the vowel that finishes it.
+
+Three big buttons either way, no typing. A wrong answer just lets you try
+again — it never costs a life or a turn.
 
 ## Power-ups
 
@@ -80,7 +86,7 @@ transform when you grab one.
 
 Under the START button:
 
-- **BUILD 1.9 · JS OK** in green — good.
+- **BUILD 2.0 · JS OK** in green — good.
 - **JS NOT RUNNING** in red — the script died; the game won't respond.
 
 A red bar across the bottom means an error, and it says what. Tap to dismiss.

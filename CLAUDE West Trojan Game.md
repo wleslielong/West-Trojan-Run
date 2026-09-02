@@ -3,7 +3,7 @@
 A browser-based side-scrolling platformer set on Main Street in West, Texas,
 starring the West Trojan mascot. Built as a single self-contained HTML file.
 
-**Current version: BUILD 1.9** (see `index.html`, hardcoded in the markup)
+**Current version: BUILD 2.0** (see `index.html`, hardcoded in the markup)
 
 ---
 
@@ -59,7 +59,7 @@ Rough layout of the script:
 | Audio | WebAudio beeps; nodes disconnect on `onended` |
 | Input | Touch button bindings + keyboard fallback |
 | Display mode | Standalone check; drops the letterbox caps. No fullscreen button since 1.8 |
-| Math gate | `askMath()` / `mathPick()` — the addition problem between you and playing |
+| Learning gate | `askMath()` / `buildSum()` / `buildWord()` — the sum or sight word between you and playing |
 | Update | Physics, collisions, enemies, pickups |
 | Draw | Layered: sky → far parallax → train → street/buildings → entities |
 | Boot | Error reporting, watchdog, render loop |
@@ -80,7 +80,7 @@ an earlier absolute-coordinate version broke on rotation.
 
 ### Physics
 
-- `GRAVITY 0.66`, `MOVE 4.0`, `JUMP_V 13.2`, `JUMP_HI 16.4` (boots power-up)
+- `GRAVITY 0.66`, `MOVE 4.0`, `JUMP_V 13.2`, `JUMP_HI 16.2` (Cowboy Boots)
 - Max jump height ≈ 132px, so ground-reachable platforms sit below ~120 `hA`
 - Coyote time: 7 frames
 - Variable jump height: releasing early multiplies upward velocity by 0.86
@@ -147,12 +147,22 @@ an earlier absolute-coordinate version broke on rotation.
   while the Trojan flickers between its old and new height and a gold ring
   bursts outward. `drawTrojan` translates to the real bottom (`P.y+P.h`) so the
   flicker grows from the feet instead of sliding the character.
-- **Math gate**: every start and every respawn is gated behind one single-digit
-  addition problem — the game is aimed at 5-8 year olds. Answers are three
-  buttons (correct plus two near misses), never a text field: a numeric keyboard
-  on an iPad covers the screen. A wrong answer costs another go and nothing
-  else. `askMath(then)` sets `state='math'` and fires `then` on the right
-  answer, so it composes with both `reset(true)` and `reset(false)`.
+- **Learning gate**: every start and every respawn is gated behind one question,
+  picked 50/50 between an addition sum and a fill-in-the-missing-letter sight
+  word. Answers are always three buttons, never a text field: a keyboard on an
+  iPad covers the screen and the child loses the game behind it. A wrong answer
+  costs another go and nothing else. `askMath(then)` sets `state='math'` and
+  fires `then` on the right answer, so it composes with both `reset(true)` and
+  `reset(false)`.
+  - **Sums never exceed 10.** `total` is drawn first (2..10) and then split, so
+    the bound holds by construction rather than by rejection. The two distractors
+    are capped at 10 as well — otherwise "never pick the big one" is a shortcut
+    past actually adding.
+  - **Sight words** live in `SIGHT` as `[word, picture, missing index, wrong,
+    wrong]`. Every one is a missing **vowel**, which is the phonics skill this
+    age is drilling. Pictures are emoji, not drawings: no extra files, they scale
+    to any size, and the single-file rule survives. The word is rendered spaced
+    out (`D _ G`) so the blank reads as a gap rather than punctuation.
 - **Death pause**: dying sets `state='dying'` for 60 frames before anything
   else happens, so a child can see what killed them. Falling in a pit triggers
   at the lava surface (`GROUND+LAVA_DROP+6`) rather than 240px down, so the
